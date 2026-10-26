@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#f4f5f1">
+  <meta name="description" content="An interactive 3D yo-yo physics lab. Explore gravity, rotational inertia, energy and rewinding.">
+  <link rel="icon" href="data:,">
+  <title>Yo-yo lab · 3D physics</title>
+  <style>
+    :root { color-scheme: light; --ink:#203b39; --muted:#617570; --line:#dce3dd; --paper:#f4f5f1; --teal:#167e73; --gold:#d99b36; --violet:#8a7ab4; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--paper); color:var(--ink); font:15px/1.5 "Segoe UI",Arial,sans-serif; }
+    button,input,select { font:inherit; }
+    button,select,summary,input { -webkit-tap-highlight-color:transparent; }
+    button { cursor:pointer; border:1px solid var(--line); border-radius:9px; padding:10px 14px; color:var(--ink); background:#fff; font-weight:600; }
+    button:hover { border-color:#8da69c; background:#f6f9f5; }
+    button:disabled { cursor:default; opacity:.45; }
+    button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,canvas:focus-visible { outline:3px solid #c49835; outline-offset:3px; }
+    .primary { color:#fff; background:var(--teal); border-color:var(--teal); }
+    .primary:hover { color:#fff; background:#11695f; }
+    header { max-width:1456px; margin:auto; padding:28px 36px 20px; display:flex; justify-content:space-between; gap:20px; align-items:center; }
+    .brand { font-size:12px; letter-spacing:.16em; font-weight:700; text-transform:uppercase; color:var(--teal); }
+    h1 { margin:3px 0 0; font-size:32px; line-height:1.2; font-weight:650; letter-spacing:-.04em; }
+    .tag { border:1px solid #cad9cc; color:#53695d; padding:7px 12px; border-radius:30px; font-size:12px; white-space:nowrap; }
+    main { max-width:1456px; padding:0 36px 30px; margin:auto; }
+    .intro { color:var(--muted); margin:0 0 20px; }
+    .lab { display:grid; grid-template-columns:minmax(0,1fr) 310px; gap:18px; }
+    .viewport { position:relative; border:1px solid var(--line); border-radius:16px; overflow:hidden; background:#edf1eb; min-height:560px; height:clamp(560px,68vh,760px); }
+    #scene { position:absolute; inset:0; }
+    #scene canvas { display:block; width:100%; height:100%; touch-action:none; }
+    .scene-top { position:absolute; z-index:1; top:20px; left:22px; right:22px; display:flex; align-items:center; justify-content:space-between; gap:10px; pointer-events:none; }
+    .status { background:#fffdf9ed; border:1px solid #d9e1d9; padding:6px 11px; border-radius:20px; font-size:12px; display:flex; align-items:center; gap:7px; }
+    .dot { width:6px; height:6px; border-radius:50%; background:var(--teal); }
+    .view-hint { color:#677c71; font-size:12px; }
+    .scene-bottom { position:absolute; z-index:1; bottom:18px; left:20px; right:20px; display:flex; align-items:center; justify-content:space-between; gap:12px; pointer-events:none; }
+    .scene-bottom button { pointer-events:auto; padding:7px 10px; font-size:12px; background:#fffdf9e8; }
+    .clock { color:#526d60; font:13px/1.5 Consolas,monospace; padding:6px 10px; border-radius:7px; background:#fffdf9d9; }
+    .toolbar { display:flex; gap:9px; margin-top:12px; align-items:center; flex-wrap:wrap; }
+    #play { min-width:145px; }
+    .speed { margin-left:auto; display:flex; gap:8px; align-items:center; color:var(--muted); font-size:13px; }
+    select { background:#fff; border:1px solid var(--line); padding:8px; border-radius:7px; color:var(--ink); }
+    aside { background:#fffdf9; padding:21px; border:1px solid var(--line); border-radius:16px; }
+    h2 { font-size:16px; letter-spacing:-.02em; margin:0 0 4px; }
+    .small { color:var(--muted); font-size:12px; }
+    aside .small { margin:0 0 19px; }
+    .control { margin:0 0 16px; }
+    .control label { display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:13px; margin-bottom:5px; }
+    output { color:var(--teal); font-size:12px; font-variant-numeric:tabular-nums; }
+    input[type=range] { display:block; width:100%; margin:8px 0 0; height:15px; accent-color:var(--teal); cursor:pointer; }
+    .control select { width:100%; font-size:13px; }
+    .checks { display:flex; gap:15px; border-top:1px solid var(--line); padding-top:15px; font-size:12px; }
+    .checks label { display:flex; gap:5px; align-items:center; cursor:pointer; }
+    input[type=checkbox] { accent-color:var(--teal); }
+    .readings { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:20px; }
+    .reading { border-top:1px solid #ccd8cf; padding:13px 3px 0; }
+    .reading .label { color:var(--muted); font-size:12px; }
+    .reading .value { font-size:27px; letter-spacing:-.04em; line-height:1.5; font-variant-numeric:tabular-nums; }
+    .reading .unit { font-size:12px; color:var(--muted); margin-left:4px; letter-spacing:0; }
+    .energy { margin-top:22px; background:#fffdf9; border:1px solid var(--line); border-radius:12px; padding:17px 20px; }
+    .energy-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px; }
+    .energy-heading h2 { font-size:14px; margin:0; }
+    .energy-total { font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
+    .energy-bar { display:flex; height:12px; overflow:hidden; border-radius:6px; background:#e4e8e2; }
+    .energy-bar span { display:block; width:0; }
+    #peBar { background:var(--teal); } #keBar { background:var(--violet); } #rotBar { background:var(--gold); } #lossBar { background:#cbd3c9; }
+    .legend { display:flex; gap:17px; flex-wrap:wrap; margin-top:10px; font-size:11px; color:var(--muted); }
+    .legend i { display:inline-block; width:7px; height:7px; border-radius:2px; margin-right:5px; }
+    details { border-top:1px solid var(--line); margin-top:24px; padding-top:15px; color:var(--muted); font-size:13px; }
+    summary { cursor:pointer; color:var(--ink); font-weight:600; width:fit-content; }
+    .notes { max-width:960px; display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+    .notes p { margin:13px 0; }
+    code,kbd { font-family:Consolas,monospace; background:#e9ede5; border-radius:3px; padding:1px 4px; }
+    a { color:var(--teal); }
+    .message { position:absolute; z-index:3; inset:0; display:grid; place-content:center; padding:35px; text-align:center; background:#edf1ebef; }
+    .message[hidden] { display:none; }
+    .message strong { font-size:20px; }
+    .message p { max-width:490px; margin:12px auto; color:var(--muted); }
+    .message pre { white-space:pre-wrap; overflow-wrap:anywhere; font-size:11px; color:#9b4638; }
+    footer { color:var(--muted); font-size:11px; margin-top:20px; display:flex; justify-content:space-between; gap:12px; }
+    @media (max-width:1000px) { header { padding:24px 22px 18px; } main { padding:0 22px 25px; } .lab { grid-template-columns:minmax(0,1fr) 280px; gap:12px; } aside { padding:17px; } .view-hint { display:none; } }
+    @media (max-width:720px) { header { padding:20px 16px 16px; } main { padding:0 16px 24px; } h1 { font-size:28px; } .tag { display:none; } .intro { font-size:13px; } .lab { grid-template-columns:1fr; } .viewport { min-height:460px; height:60vh; } aside { display:grid; grid-template-columns:1fr 1fr; gap:0 20px; } aside h2,aside>.small,.checks { grid-column:1/-1; } .readings { gap:8px; } .reading .value { font-size:23px; } .reading .unit { display:block; margin:0; } .speed { margin-left:0; } .toolbar { gap:7px; } .toolbar button { padding:9px 11px; } #play { min-width:125px; } .notes { grid-template-columns:1fr; gap:0; } }
+    @media (prefers-reduced-motion:reduce) { * { scroll-behavior:auto; } }
+  
+.lab-navigation{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin:0 0 18px;padding:9px 0 12px;border-bottom:1px solid #dce3dd;font-size:12px}.lab-navigation a{color:#356c87;text-decoration:none}.lab-navigation a:hover{text-decoration:underline}
+</style>
+  <!-- Keep BOTH URLs on the same CDN and exact release. The trailing slash matters. -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <header>
+    <div><div class="brand">Mechanics / interactive experiment</div><h1>Yo-yo lab.</h1></div>
+    <div class="tag">Gravity meets rotation</div>
+  </header>
+  <main>
+    <nav class="lab-navigation" aria-label="Simulation navigation"><a href="../../">← All simulations</a><a href="../spool/">Explore the spool paradox →</a></nav>
+    <p class="intro">Release a yo-yo, follow its energy, and discover what makes it return.</p>
+    <div class="lab">
+      <section aria-label="Simulation and measurements">
+        <div class="viewport">
+          <div id="scene"></div>
+          <div class="scene-top"><span class="status" role="status"><span class="dot"></span><span id="status">Loading 3D scene…</span></span><span class="view-hint">Drag to orbit · Scroll to zoom · Right-drag to pan</span></div>
+          <div class="scene-bottom"><span class="clock" id="clock">t = 0.00 s</span><div><button id="front" type="button" disabled>Front view</button> <button id="camera" type="button" disabled>Reset view</button></div></div>
+          <div class="message" id="message" role="status"><strong id="messageTitle">Preparing your experiment…</strong><p id="messageText">Loading Three.js from jsDelivr. An internet connection is needed.</p><pre id="errorDetail"></pre></div>
+          <noscript><div class="message"><strong>JavaScript is needed</strong><p>Enable JavaScript in your browser to run this simulation.</p></div></noscript>
+        </div>
+        <div class="toolbar">
+          <button class="primary" id="play" type="button" disabled>▶ Drop yo-yo</button>
+          <button id="reset" type="button" disabled>↺ Reset</button>
+          <button id="step" type="button" title="Pause and advance 1/60 second" disabled>Step</button>
+          <div class="speed"><label for="speed">Speed</label><select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+        </div>
+        <div class="readings" aria-label="Live measurements">
+          <div class="reading"><div class="label">String unwound</div><div class="value"><span id="lengthValue">0.135</span><span class="unit">m</span></div></div>
+          <div class="reading"><div class="label">Vertical speed</div><div class="value"><span id="speedValue">0.000</span><span class="unit">m/s</span></div></div>
+          <div class="reading"><div class="label">Spin rate</div><div class="value"><span id="spinValue">0</span><span class="unit">rpm</span></div></div>
+          <div class="reading"><div class="label">Acceleration ↓</div><div class="value"><span id="accelValue">0.90</span><span class="unit">m/s²</span></div></div>
+        </div>
+      </section>
+      <aside aria-label="Experiment settings">
+        <h2>Make it your experiment</h2>
+        <p class="small">Changing a physics setting resets the trial.</p>
+        <div class="control"><label for="gravity">Gravity <output id="gravityOut" for="gravity">9.81 m/s²</output></label><input id="gravity" type="range" min="1" max="20" step="0.01" value="9.81"></div>
+        <div class="control"><label for="length">String length <output id="lengthOut" for="length">1.20 m</output></label><input id="length" type="range" min="0.6" max="2" step="0.05" value="1.2"></div>
+        <div class="control"><label for="mass">Mass <output id="massOut" for="mass">80 g</output></label><input id="mass" type="range" min="30" max="200" step="5" value="80"></div>
+        <div class="control"><label for="radius">Body radius <output id="radiusOut" for="radius">80 mm</output></label><input id="radius" type="range" min="40" max="100" step="1" value="80"></div>
+        <div class="control"><label for="axle">Axle radius <output id="axleOut" for="axle">18 mm</output></label><input id="axle" type="range" min="5" max="30" step="1" value="18"></div>
+        <div class="control"><label for="loss">Energy lost per return <output id="lossOut" for="loss">8%</output></label><input id="loss" type="range" min="0" max="40" step="1" value="8"></div>
+        <div class="control"><label for="inertia">Mass distribution</label><select id="inertia"><option value="0.5">Solid discs · I = ½mR²</option><option value="1">Rim weighted · I = mR²</option></select></div>
+        <div class="checks"><label for="grid"><input id="grid" type="checkbox" checked> Grid</label><label for="forces"><input id="forces" type="checkbox"> Force arrows</label></div>
+      </aside>
+    </div>
+    <section class="energy" aria-label="Energy distribution">
+      <div class="energy-heading"><h2>Where does the energy go?</h2><span class="energy-total" id="energyTotal">Mechanical energy: — J</span></div>
+      <div class="energy-bar" role="img" id="energyBar" aria-label="Energy distribution"><span id="peBar"></span><span id="keBar"></span><span id="rotBar"></span><span id="lossBar"></span></div>
+      <div class="legend"><span><i style="background:var(--teal)"></i>Gravitational</span><span><i style="background:var(--violet)"></i>Moving down / up</span><span><i style="background:var(--gold)"></i>Spinning</span><span><i style="background:#cbd3c9"></i>Dissipated</span></div>
+    </section>
+    <details>
+      <summary>Physics, keyboard controls &amp; running this file</summary>
+      <div class="notes">
+        <div>
+          <p><strong>The model.</strong> This is an ideal fixed-axle, rewinding yo-yo (Maxwell-wheel model): a massless, inextensible string, no slipping, a fixed support, and vertical motion. It is rendered in 3D; swing, string layers, and free-spinning bearing tricks are not modeled.</p>
+          <p>Between returns, <code>a = g / (1 + I / (m r²))</code>, with body radius R and axle radius r. Translation and spin obey <code>|v| = r |ω|</code>. At full extension the vertical velocity reverses; spin continues in the same direction as the string starts winding back up. The chosen percentage of kinetic energy is dissipated at each return. The instantaneous turn is an idealization; force arrows apply between turns.</p>
+          <p>Energy is measured relative to full extension. Try 0% loss for an ideal repeating motion. Try changing mass: it changes energy and force, but cancels out of the acceleration. The rim-weighted option increases inertia; the mesh is illustrative. Very small residual rebounds settle at the bottom.</p>
+          <p><strong>Force arrows:</strong> amber = weight mg; teal = string tension T. The acceleration reading is the downward acceleration during motion between turns; it is zero while held or settled.</p>
+        </div>
+        <div>
+          <p><strong>Controls.</strong> <kbd>Space</kbd> play/pause · <kbd>R</kbd> reset · <kbd>N</kbd> one step (1/60 simulated second) · <kbd>C</kbd> reset camera. Drag the scene to orbit, scroll/pinch to zoom, and right-drag or use two fingers to pan. Physics time pauses when the tab is hidden.</p>
+          <p><strong>Windows / localhost.</strong> Save this file as <code>index.html</code>. In its folder, open PowerShell and run <code>py -m http.server 8000 --bind 127.0.0.1</code>. Open <a href="http://localhost:8000/">http://localhost:8000/</a> in a current Edge, Chrome, or Firefox browser. If the Python launcher is unavailable, use <code>python -m http.server 8000 --bind 127.0.0.1</code>.</p>
+          <p><strong>Share with pupils.</strong> Upload this single file to any static HTTPS host and share its page URL. Viewers need a current browser with WebGL 2 and internet access; they do not need Python, Node.js, or a build step. Three.js and OrbitControls both use version 0.180.0 from jsDelivr. This file uses inline scripts and styles, so the host must allow them and modules from that CDN.</p>
+          <p><a href="https://threejs.org/manual/pages/installation.html" target="_blank" rel="noopener noreferrer">Three.js installation reference ↗</a></p>
+        </div>
+      </div>
+    </details>
+    <footer><span>Yo-yo lab · A small experiment in rotational motion</span><span>Three.js r180</span></footer>
+  </main>
+  <script>
+    // This classic bootstrap still displays an explanation if the module cannot load.
+    window.yoyoBoot = {
+      ready: false,
+      fail(error) {
+        document.getElementById('message').hidden = false;
+        document.getElementById('messageTitle').textContent = 'The 3D scene could not start';
+        document.getElementById('messageText').textContent = 'Open this page through localhost or static hosting, check your internet connection to cdn.jsdelivr.net, and use a current browser with WebGL 2. Reload to try again.';
+        document.getElementById('errorDetail').textContent = String(error && error.message || error);
+        document.getElementById('status').textContent = 'Unable to start';
+        for (const id of ['play','reset','step','front','camera']) document.getElementById(id).disabled = true;
+      }
+    };
+    if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
+      window.yoyoBoot.fail('This browser does not support import maps. Please update your browser.');
+    }
+    window.yoyoBoot.timer = setTimeout(() => {
+      if (!window.yoyoBoot.ready) {
+        document.getElementById('messageText').textContent = 'Still loading… Check whether your connection allows cdn.jsdelivr.net, then reload. You can also open the file through a localhost server.';
+      }
+    }, 15000);
+  </script>
+  <script type="module" id="simulation">
+    try {
+      // OrbitControls internally imports 'three'; the import map resolves that too.
+      const [THREE, { OrbitControls }] = await Promise.all([
+        import('three'),
+        import('three/addons/controls/OrbitControls.js')
+      ]);
+      const $ = id => document.getElementById(id);
+
+      /* PHYSICS-BEGIN
+         SI units throughout. Exact constant-acceleration segments and event times
+         avoid frame-rate-dependent energy drift, including at bottom reversals.
+         The physics block is independent of the renderer for numerical checking.
+      */
+      const p = { g:9.81, L:1.2, m:0.08, R:0.08, r:0.018, k:0.5, loss:0.08 };
+      const s = { q:0, v:0, theta:0, winding:1, t:0, lost:0, turns:0, settled:false };
+      const inertia = () => p.k * p.m * p.R * p.R;
+      const effectiveMass = () => p.m + inertia() / (p.r * p.r);
+      const acceleration = () => p.m * p.g / effectiveMass();
+      const releaseLength = () => p.R + 0.055;
+      function resetPhysics() {
+        Object.assign(s, { q:releaseLength(), v:0, theta:0, winding:1, t:0, lost:0, turns:0, settled:false });
+      }
+      function energies() {
+        const potential = p.m * p.g * Math.max(0,p.L - s.q);
+        const translation = 0.5 * p.m * s.v * s.v;
+        const rotation = 0.5 * inertia() * (s.v / p.r) ** 2;
+        return { potential, translation, rotation, lost:s.lost, total:potential+translation+rotation,
+          initial:p.m * p.g * (p.L-releaseLength()) };
+      }
+      function advancePhysics(dt) {
+        if (s.settled || dt <= 0) return;
+        const a = acceleration();
+        let remaining = dt;
+        while (remaining > 1e-12 && !s.settled) {
+          const distance = Math.max(0,p.L-s.q);
+          const root = Math.sqrt(s.v*s.v + 2*a*distance);
+          // Positive root for q + v*t + a*t²/2 = L. Stable for falling motion.
+          const hitTime = s.v >= 0
+            ? (distance === 0 ? 0 : 2*distance/(root+s.v))
+            : (root-s.v)/a;
+          const hitsBottom = hitTime <= remaining;
+          const h = hitsBottom ? hitTime : remaining;
+          const dq = s.v*h + 0.5*a*h*h;
+          s.q += dq;
+          s.theta += s.winding*dq/p.r;
+          s.v += a*h;
+          s.t += h;
+          remaining -= h;
+          if (hitsBottom) {
+            s.q = p.L;
+            const kinetic = 0.5*effectiveMass()*s.v*s.v;
+            s.lost += kinetic*p.loss;
+            s.v = -s.v*Math.sqrt(1-p.loss);
+            s.winding *= -1; // Maintains spin direction through the return.
+            s.turns++;
+            if (s.v*s.v/(2*a) < 0.00005) {
+              s.lost += 0.5*effectiveMass()*s.v*s.v;
+              s.v = 0;
+              s.settled = true;
+            }
+          }
+        }
+      }
+      resetPhysics();
+      /* PHYSICS-END */
+
+      const host = $('scene');
+      const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:false });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1,2));
+      renderer.setClearColor(0xedf1eb);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 1.25;
+      host.appendChild(renderer.domElement);
+      renderer.domElement.tabIndex = 0;
+      renderer.domElement.setAttribute('aria-label','Interactive 3D yo-yo. Drag to orbit and scroll to zoom. Playback buttons and measurements are below the scene.');
+      const scene = new THREE.Scene();
+      scene.add(new THREE.HemisphereLight(0xffffff,0x8a9b83,2.7));
+      const key = new THREE.DirectionalLight(0xfff3dc,4);
+      key.position.set(-1.8,3,2.5);
+      key.castShadow = true;
+      key.shadow.mapSize.set(1024,1024);
+      Object.assign(key.shadow.camera,{left:-2,right:2,top:2,bottom:-2,near:0.1,far:8});
+      key.shadow.normalBias = 0.004;
+      scene.add(key);
+      const fill = new THREE.DirectionalLight(0xb1e1df,2);
+      fill.position.set(2,1,-1);
+      scene.add(fill);
+      const camera = new THREE.PerspectiveCamera(37,1,0.01,30);
+      const controls = new OrbitControls(camera,renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.08;
+      controls.minDistance = 0.35;
+      controls.maxDistance = 9;
+      controls.maxPolarAngle = Math.PI*0.9;
+      const pivot = new THREE.Vector3(0,0,0);
+      let floor,grid,ruler;
+      const yoyo = new THREE.Group();
+      const rotor = new THREE.Group();
+      yoyo.add(rotor);
+      scene.add(yoyo);
+      const shellMaterial = new THREE.MeshStandardMaterial({color:0x168b81,metalness:0.52,roughness:0.24});
+      const faceMaterial = new THREE.MeshStandardMaterial({color:0xf0e9d9,metalness:0.25,roughness:0.34});
+      const brassMaterial = new THREE.MeshStandardMaterial({color:0xc89a48,metalness:0.7,roughness:0.27});
+      const darkMaterial = new THREE.MeshStandardMaterial({color:0x245b55,metalness:0.4,roughness:0.33});
+      const stringMaterial = new THREE.MeshStandardMaterial({color:0x5d6c53,roughness:0.95});
+      const string = new THREE.Mesh(new THREE.CylinderGeometry(0.0012,0.0012,1,8),stringMaterial);
+      scene.add(string);
+      // A small fixed support ring and beam make the suspension point clear.
+      const support = new THREE.Mesh(new THREE.TorusGeometry(0.021,0.005,10,36),brassMaterial);
+      support.position.set(0,0.025,0);
+      scene.add(support);
+      const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.008,0.008,0.72,12),darkMaterial);
+      beam.rotation.z = Math.PI/2;
+      beam.position.set(0,0.058,0);
+      scene.add(beam);
+      const downForce = new THREE.ArrowHelper(new THREE.Vector3(0,-1,0),new THREE.Vector3(),0.2,0xd99b36,0.032,0.02);
+      const upForce = new THREE.ArrowHelper(new THREE.Vector3(0,1,0),new THREE.Vector3(),0.2,0x167e73,0.032,0.02);
+      scene.add(downForce,upForce);
+      function disposeGroup(group) {
+        while (group.children.length) {
+          const object = group.children[0];
+          object.traverse(child => {
+            child.geometry?.dispose();
+            if (child.userData.ownMaterial) { child.material?.map?.dispose(); child.material?.dispose(); }
+          });
+          group.remove(object);
+        }
+      }
+      function cylinder(radius,depth,material,z) {
+        const mesh = new THREE.Mesh(new THREE.CylinderGeometry(radius,radius,depth,64),material);
+        mesh.rotation.x = Math.PI/2;
+        mesh.position.z = z;
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        rotor.add(mesh);
+        return mesh;
+      }
+      function buildYoyo() {
+        disposeGroup(rotor);
+        const R = p.R;
+        cylinder(p.r,0.042,brassMaterial,0);
+        for (const side of [-1,1]) {
+          cylinder(R,0.019,shellMaterial,side*0.026);
+          cylinder(R*0.87,0.003,faceMaterial,side*0.037);
+          cylinder(R*0.34,0.008,shellMaterial,side*0.04);
+          cylinder(R*0.14,0.01,brassMaterial,side*0.043);
+          const ring = new THREE.Mesh(new THREE.TorusGeometry(R*0.94,R*0.055,12,72),shellMaterial);
+          ring.position.z = side*0.036;
+          ring.castShadow = true;
+          rotor.add(ring);
+          // Asymmetric face markers show actual spin, without fake rotation.
+          for (let i=0;i<3;i++) {
+            const angle = i*2*Math.PI/3;
+            const marker = new THREE.Mesh(new THREE.BoxGeometry(R*0.28,R*0.065,0.001),darkMaterial);
+            marker.position.set(Math.cos(angle)*R*0.61,Math.sin(angle)*R*0.61,side*0.039);
+            marker.rotation.z = angle;
+            rotor.add(marker);
+          }
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(R*0.045,12,8),brassMaterial);
+          dot.position.set(R*0.73,0,side*0.041);
+          rotor.add(dot);
+        }
+      }
+      function labelSprite(text) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256; canvas.height = 64;
+        const ctx = canvas.getContext('2d');
+        ctx.font = '36px Segoe UI, Arial'; ctx.fillStyle = '#41584b';
+        ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+        ctx.fillText(text,250,32);
+        const material = new THREE.SpriteMaterial({map:new THREE.CanvasTexture(canvas),depthWrite:false});
+        const sprite = new THREE.Sprite(material);
+        sprite.userData.ownMaterial = true;
+        sprite.scale.set(0.24,0.06,1);
+        return sprite;
+      }
+      function buildStage() {
+        if (floor) { floor.geometry.dispose(); floor.material.dispose(); scene.remove(floor); }
+        if (grid) { grid.geometry.dispose(); grid.material.dispose(); scene.remove(grid); }
+        if (ruler) { disposeGroup(ruler); scene.remove(ruler); }
+        const floorY = -p.L-p.R-0.055;
+        floor = new THREE.Mesh(new THREE.PlaneGeometry(20,20),new THREE.MeshStandardMaterial({color:0xe7ece3,roughness:1}));
+        floor.rotation.x = -Math.PI/2;
+        floor.position.y = floorY;
+        floor.receiveShadow = true;
+        scene.add(floor);
+        grid = new THREE.GridHelper(6,60,0xb9cabc,0xd0dbcf);
+        grid.position.y = floorY+0.001;
+        grid.material.transparent = true; grid.material.opacity = 0.45;
+        grid.visible = $('grid').checked;
+        scene.add(grid);
+        ruler = new THREE.Group();
+        const x = -Math.max(0.26,p.R*2.8);
+        const points = [new THREE.Vector3(x,0,0),new THREE.Vector3(x,-p.L,0)];
+        const step = p.L > 1.5 ? 0.25 : 0.2;
+        for (let d=0;d<=p.L+1e-8;d+=step) {
+          points.push(new THREE.Vector3(x,-d,0),new THREE.Vector3(x-0.018,-d,0));
+          const label = labelSprite(d.toFixed(2)+' m');
+          label.position.set(x-0.15,-d,0);
+          ruler.add(label);
+        }
+        const marks = new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:0xb2c2b4}));
+        marks.userData.ownMaterial = true;
+        ruler.add(marks);
+        scene.add(ruler);
+      }
+      function resetCamera(front=false) {
+        controls.reset();
+        const span = p.L+p.R+0.3;
+        const targetY = -p.L*0.5;
+        // Fit the vertical experiment at narrow as well as wide aspect ratios.
+        const distance = Math.max(span*1.8,1.7/Math.max(camera.aspect,0.3));
+        camera.position.set(front?0:distance*0.32,targetY+(front?0:distance*0.12),distance);
+        controls.target.set(-0.07,targetY,0);
+        controls.update();
+      }
+      let running = false;
+      let contextLost = false;
+      let accumulator = 0;
+      let lastTime = performance.now();
+      const fixedStep = 1/240;
+      function updateView() {
+        yoyo.position.set(0,-s.q,0);
+        rotor.rotation.z = s.theta;
+        // The string is drawn from the fixed support to the axle centerline.
+        string.position.copy(pivot).lerp(yoyo.position,0.5);
+        string.scale.y = s.q;
+        const forcesVisible = $('forces').checked;
+        downForce.visible = upForce.visible = forcesVisible;
+        const forceScale = 0.22/(0.08*9.81);
+        downForce.position.set(p.R+0.06,-s.q,0.015);
+        upForce.position.set(-p.R-0.055,-s.q,0.015);
+        downForce.setLength(Math.max(0.05,p.m*p.g*forceScale),0.03,0.018);
+        const a = s.settled || s.t===0 ? 0 : acceleration();
+        upForce.setLength(Math.max(0.05,p.m*(p.g-a)*forceScale),0.03,0.018);
+        $('lengthValue').textContent = s.q.toFixed(3);
+        $('speedValue').textContent = Math.abs(s.v).toFixed(3);
+        $('spinValue').textContent = (Math.abs(s.v)/p.r*60/(2*Math.PI)).toFixed(0);
+        $('accelValue').textContent = a.toFixed(2);
+        $('clock').textContent = 't = '+s.t.toFixed(2)+' s';
+        $('status').textContent = s.settled ? 'Settled at full extension' : s.t===0 ? 'Ready to release' : running ? (s.v>=0?'Unwinding · moving down':'Rewinding · moving up') : 'Paused';
+        $('play').textContent = s.settled ? '↺ Drop again' : running ? 'Ⅱ Pause' : s.t===0 ? '▶ Drop yo-yo' : '▶ Resume';
+        const e = energies();
+        const terms = [e.potential,e.translation,e.rotation,e.lost];
+        ['peBar','keBar','rotBar','lossBar'].forEach((id,i) => { $(id).style.width = (100*terms[i]/e.initial)+'%'; });
+        $('energyTotal').textContent = 'Mechanical energy: '+e.total.toFixed(3)+' J';
+        $('energyBar').setAttribute('aria-label',`Gravitational ${e.potential.toFixed(3)} J; translational ${e.translation.toFixed(3)} J; rotational ${e.rotation.toFixed(3)} J; dissipated ${e.lost.toFixed(3)} J.`);
+      }
+      function resetTrial() { running=false; accumulator=0; resetPhysics(); updateView(); }
+      function togglePlay() {
+        if (contextLost) return;
+        if (s.settled) resetTrial();
+        running = !running; lastTime=performance.now(); accumulator=0; updateView();
+      }
+      function oneStep() { if (contextLost) return; running=false; accumulator=0; advancePhysics(1/60); updateView(); }
+      $('play').addEventListener('click',togglePlay);
+      $('reset').addEventListener('click',resetTrial);
+      $('step').addEventListener('click',oneStep);
+      $('front').addEventListener('click',() => resetCamera(true));
+      $('camera').addEventListener('click',() => resetCamera());
+      $('grid').addEventListener('change',() => { grid.visible = $('grid').checked; });
+      $('forces').addEventListener('change',updateView);
+      const settings = [
+        ['gravity','g',1,v=>v.toFixed(2)+' m/s²'],
+        ['length','L',1,v=>v.toFixed(2)+' m'],
+        ['mass','m',0.001,v=>Math.round(v*1000)+' g'],
+        ['radius','R',0.001,v=>Math.round(v*1000)+' mm'],
+        ['axle','r',0.001,v=>Math.round(v*1000)+' mm'],
+        ['loss','loss',0.01,v=>Math.round(v*100)+'%']
+      ];
+      for (const [id,key,scale,format] of settings) {
+        $(id).addEventListener('input',() => {
+          p[key] = Number($(id).value)*scale;
+          $(id+'Out').textContent = format(p[key]);
+          resetTrial();
+          if (id==='radius'||id==='axle') buildYoyo();
+          if (id==='length'||id==='radius') { buildStage(); resetCamera(); }
+        });
+      }
+      $('inertia').addEventListener('change',() => { p.k=Number($('inertia').value); resetTrial(); });
+      document.addEventListener('keydown',event => {
+        if (event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.target.closest('input,select,textarea,button,summary,a,[contenteditable]')) return;
+        const key=event.key.toLowerCase();
+        if (event.code==='Space') { event.preventDefault(); togglePlay(); }
+        else if (key==='r') resetTrial();
+        else if (key==='n') oneStep();
+        else if (key==='c') resetCamera();
+      });
+      document.addEventListener('visibilitychange',() => { lastTime=performance.now(); accumulator=0; });
+      renderer.domElement.addEventListener('webglcontextlost',event => {
+        event.preventDefault(); contextLost=true; running=false;
+        window.yoyoBoot.fail('The graphics context was lost. Reload this page to restart the simulation.');
+      });
+      function resize() {
+        const width=host.clientWidth, height=host.clientHeight;
+        if (!width||!height) return;
+        camera.aspect=width/height; camera.updateProjectionMatrix();
+        renderer.setSize(width,height,false);
+      }
+      new ResizeObserver(resize).observe(host);
+      resize(); buildYoyo(); buildStage(); resetCamera(); updateView();
+      function animate(now) {
+        const elapsed=Math.min(0.1,Math.max(0,(now-lastTime)/1000));
+        lastTime=now;
+        if (running&&!document.hidden&&!contextLost) {
+          accumulator+=elapsed*Number($('speed').value);
+          while (accumulator>=fixedStep) {
+            advancePhysics(fixedStep); accumulator-=fixedStep;
+            if (s.settled) { running=false; accumulator=0; break; }
+          }
+        }
+        updateView(); controls.update();
+        if (!contextLost) renderer.render(scene,camera);
+      }
+      renderer.setAnimationLoop(animate);
+      window.yoyoBoot.ready=true;
+      clearTimeout(window.yoyoBoot.timer);
+      $('message').hidden=true;
+      for (const id of ['play','reset','step','front','camera']) $(id).disabled=false;
+    } catch (error) {
+      clearTimeout(window.yoyoBoot.timer);
+      window.yoyoBoot.fail(error);
+      console.error('Yo-yo lab:',error);
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,22 @@
+[
+  {
+    "id": "yoyo",
+    "title": "Yo-yo lab",
+    "subject": "Physics",
+    "topic": "Mechanics",
+    "description": "Release a yo-yo and follow its motion, spin and energy as it unwinds and returns.",
+    "path": "physics/yoyo/",
+    "icon": "yoyo",
+    "tags": ["rotation", "energy", "gravity", "inertia"]
+  },
+  {
+    "id": "spool",
+    "title": "The spool paradox",
+    "subject": "Physics",
+    "topic": "Mechanics",
+    "description": "Pull a string from the top or bottom of a spool. Predict its direction, compare both cases and reveal why.",
+    "path": "physics/spool/",
+    "icon": "spool",
+    "tags": ["rotation", "torque", "friction", "rolling", "spindle"]
+  }
+]
