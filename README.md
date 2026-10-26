@@ -9,7 +9,7 @@ Eine wachsende Sammlung interaktiver Simulationen für den Unterricht.
 
 - Jo-Jo-Labor: https://enigmaldc.github.io/simulations/physics/yoyo/
 - Spulenparadoxon: https://enigmaldc.github.io/simulations/physics/spool/
-- KSHBot · LQR-Labor: https://enigmaldc.github.io/simulations/physics/kshbot/
+- KSHBot · PID- und LQR-Labor: https://enigmaldc.github.io/simulations/physics/kshbot/
 
 Benötigt werden Internet und ein aktueller Browser mit WebGL 2. Konten und
 Installationen sind nicht nötig. Die Physik wird im Browser berechnet; es gibt
@@ -104,3 +104,5 @@ diesem Repository gepflegt; die frühere Sammlung bleibt unverändert.
 ## KSHBot-Labor
 
 Das KSHBot-Labor enthält das bereitgestellte Gehäusemodell, schematische Zusatzbauteile und eine nichtlineare Längsdynamik. Die vier Rückführverstärkungen entsprechen den Parametern KTH, KOM, KX und KV. Massenverteilung und Trägheit sind veränderbare Schätzungen; die Simulation ist nicht am echten Roboter validiert. Three.js und das STL sind vollständig in der HTML-Datei enthalten.
+
+Im KSHBot-Labor ist die Regelung zwischen LQR und Winkel-PID umschaltbar. PID bietet Kp/Ki/Kd und Sollwinkel sowie die Firmwarevarianten LSM6DSO (gefiltertes Gyro-D) und MPU6050 (PID_v1). Beim Wechsel werden Zustand, I-Speicher und Aufzeichnung zurückgesetzt. Die CSV-Datei enthält beide Parametersätze, Regler, PID-Variante und Modellwerte.

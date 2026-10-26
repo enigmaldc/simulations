@@ -33,16 +33,16 @@
   },
   {
     "id": "kshbot",
-    "title": "KSHBot · LQR-Labor",
+    "title": "KSHBot · PID- und LQR-Labor",
     "subject": "Physik",
     "topic": "Regelungstechnik",
-    "description": "Bringe einen zweirädrigen Roboter ins Gleichgewicht. Verändere vier Reglerparameter und untersuche Neigung, Fahrweg und die Reaktion auf Störungen.",
+    "description": "Vergleiche PID-Winkelregelung und LQR-Zustandsregelung am selben Balanceroboter. Untersuche Verstärkungen, Störungen und die Rückkehr zum Ausgangspunkt.",
     "path": "physics/kshbot/",
     "icon": "generic",
     "tags": [
+      "PID",
       "LQR",
       "Regelung",
-      "Gleichgewicht",
       "Robotik"
     ]
   }
