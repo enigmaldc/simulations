@@ -1,95 +1,100 @@
-# Maths & Physics simulations
+# Simulationen zu Mathematik und Physik
 
-A growing library of interactive simulations for pupils.
+Eine wachsende Sammlung interaktiver Simulationen für den Unterricht.
+Übersicht und Experimente sind in Schweizer Hochdeutsch (`de-CH`) verfasst.
 
-## Share with pupils
+## Mit Lernenden teilen
 
-Main catalogue: https://enigmaldc.github.io/simulations/
+Übersicht: https://enigmaldc.github.io/simulations/
 
-- Yo-yo lab: https://enigmaldc.github.io/simulations/physics/yoyo/
-- Spool paradox: https://enigmaldc.github.io/simulations/physics/spool/
+- Jo-Jo-Labor: https://enigmaldc.github.io/simulations/physics/yoyo/
+- Spulenparadoxon: https://enigmaldc.github.io/simulations/physics/spool/
 
-These links become available after GitHub Pages is enabled and deployment succeeds.
-Pupils need internet and a modern browser with WebGL 2. No accounts or installations
-are needed. The physics runs in the browser; there are no paid AI calls or API keys.
+Benötigt werden Internet und ein aktueller Browser mit WebGL 2. Konten und
+Installationen sind nicht nötig. Die Physik wird im Browser berechnet; es gibt
+keine kostenpflichtigen KI-Aufrufe und keine API-Schlüssel.
 
-## Repository structure
+## Aufbau des Repositorys
 
 ```text
-index.html                 # Main catalogue, search and subject filters
-simulations.json           # Catalogue entries: add future simulations here
-.nojekyll                  # Serve the files directly, without Jekyll processing
+index.html                 # Übersicht mit Suche und Fachfiltern
+simulations.json           # Liste aller Simulationen
+.nojekyll                  # Dateien ohne Jekyll-Verarbeitung ausliefern
 physics/
-  yoyo/index.html          # Yo-yo simulation
-  spool/index.html         # Spool simulation
-mathematics/               # Create this folder when adding a maths experiment
+  yoyo/index.html          # Jo-Jo-Labor
+  spool/index.html         # Spulenparadoxon
+mathematics/               # Für spätere Mathematik-Experimente anlegen
 ```
 
-Each experiment lives in its own folder and opens at a stable address. Relative
-links work under the `/simulations/` GitHub Pages project path. The catalogue
-loads `simulations.json`; no build step or separate deployment framework is needed.
-The simulations pin Three.js and OrbitControls to the same version, 0.180.0.
+Jeder Versuch liegt in einem eigenen Ordner und hat eine dauerhafte Adresse.
+Die relativen Links funktionieren unter dem GitHub-Pages-Projektpfad
+`/simulations/`. Die Übersicht liest `simulations.json`; ein Build-Schritt ist
+nicht nötig. Three.js und OrbitControls verwenden beide Version 0.180.0.
 
-## Enable GitHub Pages once
+## GitHub Pages einmalig einrichten
 
-1. Open https://github.com/enigmaldc/simulations/settings/pages
-2. Choose **Deploy from a branch**.
-3. Choose branch **main**, folder **/(root)**, then **Save**.
-4. Wait for the Pages build to succeed in the **Actions** tab.
-5. Use **Visit site** in Pages settings to confirm the main catalogue URL.
+1. Öffne https://github.com/enigmaldc/simulations/settings/pages
+2. Wähle **Deploy from a branch**.
+3. Wähle **main** und **/(root)** und klicke auf **Save**.
+4. Warte, bis der Pages-Lauf im Tab **Actions** erfolgreich abgeschlossen ist.
+5. Öffne **Visit site** in den Pages-Einstellungen, um die Übersicht zu prüfen.
 
-Subsequent commits on `main` publish automatically. GitHub Pages supports public
-repositories with GitHub Free. Keep the repository public for that setup.
+Weitere Commits auf `main` werden automatisch veröffentlicht. GitHub Pages
+steht für öffentliche Repositorys mit GitHub Free zur Verfügung. Für diese
+Einrichtung muss das Repository öffentlich bleiben.
 
-## Add another simulation
+## Weitere Simulation hinzufügen
 
-1. Create a descriptive folder, such as `physics/pendulum/` or
-   `mathematics/trigonometry/`.
-2. Put the simulation's entry file at `index.html` inside that folder. Keep any
-   supporting assets in the same folder and use relative asset URLs.
-3. Add one entry to the JSON list in `simulations.json`, for example:
+1. Erstelle einen aussagekräftigen Ordner, zum Beispiel `physics/pendulum/`
+   oder `mathematics/trigonometry/`.
+2. Lege darin die Startdatei `index.html` ab. Weitere Dateien gehören in
+   denselben Ordner; verwende relative URLs für diese Dateien.
+3. Ergänze die JSON-Liste in `simulations.json` um einen Eintrag:
 
 ```json
 {
   "id": "pendulum",
-  "title": "Pendulum lab",
-  "subject": "Physics",
-  "topic": "Oscillations",
-  "description": "Explore how length and gravity affect the period of a pendulum.",
+  "title": "Pendellabor",
+  "subject": "Physik",
+  "topic": "Schwingungen",
+  "description": "Untersuche, wie Länge und Fallbeschleunigung die Schwingungsdauer beeinflussen.",
   "path": "physics/pendulum/",
   "icon": "generic",
-  "tags": ["period", "gravity", "oscillations"]
+  "tags": ["Schwingungsdauer", "Schwerkraft", "Schwingungen"]
 }
 ```
 
-4. Use a unique `id`. Keep `path` relative: no starting `/` and no `..` segments.
-   JSON entries are comma-separated, with no trailing comma after the last one.
-5. Add a visible link back to the catalogue. For an experiment nested two folders
-   deep, use `<a href="../../">All simulations</a>`.
-6. Commit the new folder and the JSON change together. The home page updates
-   from the list automatically; new subjects get their own filter automatically.
-7. Check the published page and every control before sharing it with pupils.
+4. Verwende eine eindeutige `id`. Der `path` bleibt relativ, ohne `/` am
+   Anfang und ohne `..`-Segmente. Trenne Einträge durch Kommas; nach dem
+   letzten Eintrag steht kein Komma.
+5. Ergänze im Experiment einen sichtbaren Link zurück zur Übersicht. Bei
+   zwei Unterordnern lautet er `<a href="../../">Alle Simulationen</a>`.
+6. Committe den neuen Ordner und den JSON-Eintrag gemeinsam. Die Übersicht
+   wird aus der Liste automatisch aufgebaut. Neue Fächer erhalten automatisch
+   einen Filter; für Mathematik verwende `"subject": "Mathematik"`.
+7. Prüfe die veröffentlichte Seite und alle Bedienelemente, bevor du sie teilst.
 
-Available card illustrations are `yoyo`, `spool` and `generic`. Unknown icon names
-also use the generic illustration. No home-page HTML edits are needed for new
-catalogue entries.
+Als Kartenillustrationen stehen `yoyo`, `spool` und `generic` zur Verfügung.
+Unbekannte Namen verwenden ebenfalls die allgemeine Illustration. Die HTML-Datei
+der Übersicht muss für neue Listeneinträge nicht angepasst werden.
 
-## Local preview on Windows
+## Lokale Vorschau unter Windows
 
-Open PowerShell in this repository folder and run:
+Öffne PowerShell im Repositoryordner und führe folgenden Befehl aus:
 
 ```powershell
 py -m http.server 8000 --bind 127.0.0.1
 ```
 
-Then open http://localhost:8000/. Local file URLs cannot reliably load the JSON
-catalogue; use this local server or the published website.
+Öffne anschliessend http://localhost:8000/. Lokale Datei-URLs können die
+JSON-Liste nicht zuverlässig laden; verwende einen lokalen Webserver oder
+die veröffentlichte Website.
 
-The previous `YoYoSim` repository is independent. Existing shared links there
-continue to work; the files in this repository are the library copies to update
-for the new catalogue.
+Das frühere Repository `YoYoSim` ist unabhängig. Die dort bereits geteilten
+Links funktionieren weiter. Für die neue Übersicht werden die Kopien in
+diesem Repository gepflegt; die frühere Sammlung bleibt unverändert.
 
-## References
+## Quellen
 
-- [GitHub Pages publishing instructions](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
-- [UMass Amherst: Walking the Spool](https://people.umass.edu/plecprep/mech/1k1030.html)
+- [GitHub Pages einrichten (Englisch)](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
+- [UMass Amherst: «Walking the Spool» (Englisch)](https://people.umass.edu/plecprep/mech/1k1030.html)

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de-CH">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#f4f5f1">
-  <meta name="description" content="An interactive 3D yo-yo physics lab. Explore gravity, rotational inertia, energy and rewinding.">
+  <meta name="description" content="Ein interaktives 3D-Physiklabor zum Jo-Jo. Untersuche Fallbeschleunigung, Trägheitsmoment, Energie und Aufwickeln.">
   <link rel="icon" href="data:,">
-  <title>Yo-yo lab · 3D physics</title>
+  <title>Jo-Jo-Labor · 3D-Physik</title>
   <style>
     :root { color-scheme: light; --ink:#203b39; --muted:#617570; --line:#dce3dd; --paper:#f4f5f1; --teal:#167e73; --gold:#d99b36; --violet:#8a7ab4; }
     * { box-sizing:border-box; }
@@ -96,70 +96,70 @@
 </head>
 <body>
   <header>
-    <div><div class="brand">Mechanics / interactive experiment</div><h1>Yo-yo lab.</h1></div>
-    <div class="tag">Gravity meets rotation</div>
+    <div><div class="brand">Mechanik / interaktives Experiment</div><h1>Jo-Jo-Labor.</h1></div>
+    <div class="tag">Schwerkraft trifft Rotation</div>
   </header>
   <main>
-    <nav class="lab-navigation" aria-label="Simulation navigation"><a href="../../">← All simulations</a><a href="../spool/">Explore the spool paradox →</a></nav>
-    <p class="intro">Release a yo-yo, follow its energy, and discover what makes it return.</p>
+    <nav class="lab-navigation" aria-label="Navigation zwischen den Simulationen"><a href="../../">← Alle Simulationen</a><a href="../spool/">Zum Spulenparadoxon →</a></nav>
+    <p class="intro">Lass ein Jo-Jo los, verfolge seine Energie und entdecke, weshalb es wieder aufsteigt.</p>
     <div class="lab">
-      <section aria-label="Simulation and measurements">
+      <section aria-label="Simulation und Messwerte">
         <div class="viewport">
           <div id="scene"></div>
-          <div class="scene-top"><span class="status" role="status"><span class="dot"></span><span id="status">Loading 3D scene…</span></span><span class="view-hint">Drag to orbit · Scroll to zoom · Right-drag to pan</span></div>
-          <div class="scene-bottom"><span class="clock" id="clock">t = 0.00 s</span><div><button id="front" type="button" disabled>Front view</button> <button id="camera" type="button" disabled>Reset view</button></div></div>
-          <div class="message" id="message" role="status"><strong id="messageTitle">Preparing your experiment…</strong><p id="messageText">Loading Three.js from jsDelivr. An internet connection is needed.</p><pre id="errorDetail"></pre></div>
-          <noscript><div class="message"><strong>JavaScript is needed</strong><p>Enable JavaScript in your browser to run this simulation.</p></div></noscript>
+          <div class="scene-top"><span class="status" role="status"><span class="dot"></span><span id="status">3D-Szene wird geladen …</span></span><span class="view-hint">Ziehen zum Drehen · Scrollen zum Zoomen · Mit rechter Maustaste verschieben</span></div>
+          <div class="scene-bottom"><span class="clock" id="clock">t = 0.00 s</span><div><button id="front" type="button" disabled>Vorderansicht</button> <button id="camera" type="button" disabled>Ansicht zurücksetzen</button></div></div>
+          <div class="message" id="message" role="status"><strong id="messageTitle">Dein Experiment wird vorbereitet …</strong><p id="messageText">Three.js wird von jsDelivr geladen. Dazu wird eine Internetverbindung benötigt.</p><pre id="errorDetail"></pre></div>
+          <noscript><div class="message"><strong>JavaScript wird benötigt</strong><p>Aktiviere JavaScript im Browser, um diese Simulation zu starten.</p></div></noscript>
         </div>
         <div class="toolbar">
-          <button class="primary" id="play" type="button" disabled>▶ Drop yo-yo</button>
-          <button id="reset" type="button" disabled>↺ Reset</button>
-          <button id="step" type="button" title="Pause and advance 1/60 second" disabled>Step</button>
-          <div class="speed"><label for="speed">Speed</label><select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
+          <button class="primary" id="play" type="button" disabled>▶ Jo-Jo loslassen</button>
+          <button id="reset" type="button" disabled>↺ Zurücksetzen</button>
+          <button id="step" type="button" title="Anhalten und um 1/60 Sekunde weiterschalten" disabled>Einzelschritt</button>
+          <div class="speed"><label for="speed">Wiedergabetempo</label><select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select></div>
         </div>
-        <div class="readings" aria-label="Live measurements">
-          <div class="reading"><div class="label">String unwound</div><div class="value"><span id="lengthValue">0.135</span><span class="unit">m</span></div></div>
-          <div class="reading"><div class="label">Vertical speed</div><div class="value"><span id="speedValue">0.000</span><span class="unit">m/s</span></div></div>
-          <div class="reading"><div class="label">Spin rate</div><div class="value"><span id="spinValue">0</span><span class="unit">rpm</span></div></div>
-          <div class="reading"><div class="label">Acceleration ↓</div><div class="value"><span id="accelValue">0.90</span><span class="unit">m/s²</span></div></div>
+        <div class="readings" aria-label="Aktuelle Messwerte">
+          <div class="reading"><div class="label">Abgewickelter Faden</div><div class="value"><span id="lengthValue">0.135</span><span class="unit">m</span></div></div>
+          <div class="reading"><div class="label">Vertikale Geschwindigkeit</div><div class="value"><span id="speedValue">0.000</span><span class="unit">m/s</span></div></div>
+          <div class="reading"><div class="label">Drehzahl</div><div class="value"><span id="spinValue">0</span><span class="unit">U/min</span></div></div>
+          <div class="reading"><div class="label">Beschleunigung ↓</div><div class="value"><span id="accelValue">0.90</span><span class="unit">m/s²</span></div></div>
         </div>
       </section>
-      <aside aria-label="Experiment settings">
-        <h2>Make it your experiment</h2>
-        <p class="small">Changing a physics setting resets the trial.</p>
-        <div class="control"><label for="gravity">Gravity <output id="gravityOut" for="gravity">9.81 m/s²</output></label><input id="gravity" type="range" min="1" max="20" step="0.01" value="9.81"></div>
-        <div class="control"><label for="length">String length <output id="lengthOut" for="length">1.20 m</output></label><input id="length" type="range" min="0.6" max="2" step="0.05" value="1.2"></div>
-        <div class="control"><label for="mass">Mass <output id="massOut" for="mass">80 g</output></label><input id="mass" type="range" min="30" max="200" step="5" value="80"></div>
-        <div class="control"><label for="radius">Body radius <output id="radiusOut" for="radius">80 mm</output></label><input id="radius" type="range" min="40" max="100" step="1" value="80"></div>
-        <div class="control"><label for="axle">Axle radius <output id="axleOut" for="axle">18 mm</output></label><input id="axle" type="range" min="5" max="30" step="1" value="18"></div>
-        <div class="control"><label for="loss">Energy lost per return <output id="lossOut" for="loss">8%</output></label><input id="loss" type="range" min="0" max="40" step="1" value="8"></div>
-        <div class="control"><label for="inertia">Mass distribution</label><select id="inertia"><option value="0.5">Solid discs · I = ½mR²</option><option value="1">Rim weighted · I = mR²</option></select></div>
-        <div class="checks"><label for="grid"><input id="grid" type="checkbox" checked> Grid</label><label for="forces"><input id="forces" type="checkbox"> Force arrows</label></div>
+      <aside aria-label="Versuchseinstellungen">
+        <h2>Gestalte deinen Versuch</h2>
+        <p class="small">Wenn du eine physikalische Einstellung änderst, wird der Versuch zurückgesetzt.</p>
+        <div class="control"><label for="gravity">Fallbeschleunigung <output id="gravityOut" for="gravity">9.81 m/s²</output></label><input id="gravity" type="range" min="1" max="20" step="0.01" value="9.81"></div>
+        <div class="control"><label for="length">Fadenlänge <output id="lengthOut" for="length">1.20 m</output></label><input id="length" type="range" min="0.6" max="2" step="0.05" value="1.2"></div>
+        <div class="control"><label for="mass">Masse <output id="massOut" for="mass">80 g</output></label><input id="mass" type="range" min="30" max="200" step="5" value="80"></div>
+        <div class="control"><label for="radius">Körperradius <output id="radiusOut" for="radius">80 mm</output></label><input id="radius" type="range" min="40" max="100" step="1" value="80"></div>
+        <div class="control"><label for="axle">Achsenradius <output id="axleOut" for="axle">18 mm</output></label><input id="axle" type="range" min="5" max="30" step="1" value="18"></div>
+        <div class="control"><label for="loss">Energieverlust je Umkehr <output id="lossOut" for="loss">8%</output></label><input id="loss" type="range" min="0" max="40" step="1" value="8"></div>
+        <div class="control"><label for="inertia">Massenverteilung</label><select id="inertia"><option value="0.5">Vollscheiben · I = ½mR²</option><option value="1">Masse am Rand · I = mR²</option></select></div>
+        <div class="checks"><label for="grid"><input id="grid" type="checkbox" checked> Raster</label><label for="forces"><input id="forces" type="checkbox"> Kraftpfeile</label></div>
       </aside>
     </div>
-    <section class="energy" aria-label="Energy distribution">
-      <div class="energy-heading"><h2>Where does the energy go?</h2><span class="energy-total" id="energyTotal">Mechanical energy: — J</span></div>
-      <div class="energy-bar" role="img" id="energyBar" aria-label="Energy distribution"><span id="peBar"></span><span id="keBar"></span><span id="rotBar"></span><span id="lossBar"></span></div>
-      <div class="legend"><span><i style="background:var(--teal)"></i>Gravitational</span><span><i style="background:var(--violet)"></i>Moving down / up</span><span><i style="background:var(--gold)"></i>Spinning</span><span><i style="background:#cbd3c9"></i>Dissipated</span></div>
+    <section class="energy" aria-label="Energieverteilung">
+      <div class="energy-heading"><h2>Wohin geht die Energie?</h2><span class="energy-total" id="energyTotal">Mechanische Energie: — J</span></div>
+      <div class="energy-bar" role="img" id="energyBar" aria-label="Energieverteilung"><span id="peBar"></span><span id="keBar"></span><span id="rotBar"></span><span id="lossBar"></span></div>
+      <div class="legend"><span><i style="background:var(--teal)"></i>Lageenergie</span><span><i style="background:var(--violet)"></i>Bewegung abwärts / aufwärts</span><span><i style="background:var(--gold)"></i>Drehbewegung</span><span><i style="background:#cbd3c9"></i>Dissipierte Energie</span></div>
     </section>
     <details>
-      <summary>Physics, keyboard controls &amp; running this file</summary>
+      <summary>Physik, Tastatur und lokaler Betrieb</summary>
       <div class="notes">
         <div>
-          <p><strong>The model.</strong> This is an ideal fixed-axle, rewinding yo-yo (Maxwell-wheel model): a massless, inextensible string, no slipping, a fixed support, and vertical motion. It is rendered in 3D; swing, string layers, and free-spinning bearing tricks are not modeled.</p>
-          <p>Between returns, <code>a = g / (1 + I / (m r²))</code>, with body radius R and axle radius r. Translation and spin obey <code>|v| = r |ω|</code>. At full extension the vertical velocity reverses; spin continues in the same direction as the string starts winding back up. The chosen percentage of kinetic energy is dissipated at each return. The instantaneous turn is an idealization; force arrows apply between turns.</p>
-          <p>Energy is measured relative to full extension. Try 0% loss for an ideal repeating motion. Try changing mass: it changes energy and force, but cancels out of the acceleration. The rim-weighted option increases inertia; the mesh is illustrative. Very small residual rebounds settle at the bottom.</p>
-          <p><strong>Force arrows:</strong> amber = weight mg; teal = string tension T. The acceleration reading is the downward acceleration during motion between turns; it is zero while held or settled.</p>
+          <p><strong>Das Modell.</strong> Dargestellt ist ein ideales Jo-Jo mit starr verbundener Achse, das sich wieder aufwickelt (Maxwellrad-Modell): Der Faden ist masselos und nicht dehnbar, er gleitet nicht auf der Achse, die Aufhängung ist fest und die Bewegung erfolgt vertikal. Die Darstellung ist dreidimensional; Pendeln, Fadenlagen und Tricks mit frei drehendem Kugellager werden nicht modelliert.</p>
+          <p>Zwischen den Umkehrpunkten gilt <code>a = g / (1 + I / (m r²))</code>, wobei R der Körperradius und r der Achsenradius ist. Für Translation und Rotation gilt <code>|v| = r |ω|</code>. Bei vollständig abgewickeltem Faden kehrt sich die vertikale Geschwindigkeit um. Die Drehrichtung bleibt zunächst gleich, während sich der Faden wieder aufwickelt. Bei jeder Umkehr wird der eingestellte Anteil der kinetischen Energie dissipiert. Die augenblickliche Umkehr ist eine Idealisierung; die Kraftpfeile gelten zwischen den Umkehrpunkten.</p>
+          <p>Der Nullpunkt der Lageenergie liegt bei vollständig abgewickeltem Faden. Wähle 0 % Verlust für eine ideale, sich wiederholende Bewegung. Verändere die Masse: Sie beeinflusst Energie und Kräfte, kürzt sich aber in der Beschleunigung heraus. Die Option «Masse am Rand» erhöht das Trägheitsmoment; die Form des 3D-Modells ist schematisch. Sehr kleine Restbewegungen enden in Ruhe am unteren Punkt.</p>
+          <p><strong>Kraftpfeile:</strong> Gold = Gewichtskraft mg; Grün = Fadenkraft T. Angezeigt wird die abwärts gerichtete Beschleunigung während der Bewegung zwischen den Umkehrpunkten. Im gehaltenen Zustand und in der Ruhelage ist sie null.</p>
         </div>
         <div>
-          <p><strong>Controls.</strong> <kbd>Space</kbd> play/pause · <kbd>R</kbd> reset · <kbd>N</kbd> one step (1/60 simulated second) · <kbd>C</kbd> reset camera. Drag the scene to orbit, scroll/pinch to zoom, and right-drag or use two fingers to pan. Physics time pauses when the tab is hidden.</p>
-          <p><strong>Windows / localhost.</strong> Save this file as <code>index.html</code>. In its folder, open PowerShell and run <code>py -m http.server 8000 --bind 127.0.0.1</code>. Open <a href="http://localhost:8000/">http://localhost:8000/</a> in a current Edge, Chrome, or Firefox browser. If the Python launcher is unavailable, use <code>python -m http.server 8000 --bind 127.0.0.1</code>.</p>
-          <p><strong>Share with pupils.</strong> Upload this single file to any static HTTPS host and share its page URL. Viewers need a current browser with WebGL 2 and internet access; they do not need Python, Node.js, or a build step. Three.js and OrbitControls both use version 0.180.0 from jsDelivr. This file uses inline scripts and styles, so the host must allow them and modules from that CDN.</p>
-          <p><a href="https://threejs.org/manual/pages/installation.html" target="_blank" rel="noopener noreferrer">Three.js installation reference ↗</a></p>
+          <p><strong>Bedienung.</strong> <kbd>Leertaste</kbd> Start/Pause · <kbd>R</kbd> Zurücksetzen · <kbd>N</kbd> Einzelschritt (1/60 simulierte Sekunde) · <kbd>C</kbd> Ansicht zurücksetzen. Ziehe die Szene zum Drehen, scrolle oder verwende die Zoomgeste zum Zoomen. Verschiebe die Ansicht mit der rechten Maustaste oder mit zwei Fingern. Ist der Tab ausgeblendet, pausiert die Simulation.</p>
+          <p><strong>Windows / lokaler Betrieb.</strong> Speichere diese Datei als <code>index.html</code>. Öffne im zugehörigen Ordner PowerShell und führe folgenden Befehl aus: <code>py -m http.server 8000 --bind 127.0.0.1</code>. Öffne <a href="http://localhost:8000/">http://localhost:8000/</a> in einer aktuellen Version von Edge, Chrome oder Firefox. Falls der Python-Launcher nicht verfügbar ist, verwende <code>python -m http.server 8000 --bind 127.0.0.1</code>.</p>
+          <p><strong>Mit Lernenden teilen.</strong> Lade diese einzelne Datei auf einen statischen HTTPS-Webserver und teile die Seitenadresse. Zum Öffnen werden ein aktueller Browser mit WebGL 2 und eine Internetverbindung benötigt; Python, Node.js und ein Build-Schritt sind nicht nötig. Three.js und OrbitControls verwenden beide Version 0.180.0 von jsDelivr. Die Datei enthält eingebettete Skripte und Stile; der Webserver muss diese und Module von diesem CDN zulassen.</p>
+          <p><a href="https://threejs.org/manual/pages/installation.html" target="_blank" rel="noopener noreferrer">Installationshinweise zu Three.js ↗</a></p>
         </div>
       </div>
     </details>
-    <footer><span>Yo-yo lab · A small experiment in rotational motion</span><span>Three.js r180</span></footer>
+    <footer><span>Jo-Jo-Labor · Ein kleines Experiment zur Drehbewegung</span><span>Three.js r180</span></footer>
   </main>
   <script>
     // This classic bootstrap still displays an explanation if the module cannot load.
@@ -167,19 +167,19 @@
       ready: false,
       fail(error) {
         document.getElementById('message').hidden = false;
-        document.getElementById('messageTitle').textContent = 'The 3D scene could not start';
-        document.getElementById('messageText').textContent = 'Open this page through localhost or static hosting, check your internet connection to cdn.jsdelivr.net, and use a current browser with WebGL 2. Reload to try again.';
+        document.getElementById('messageTitle').textContent = 'Die 3D-Szene konnte nicht gestartet werden';
+        document.getElementById('messageText').textContent = 'Öffne die Seite über einen lokalen Webserver oder einen statischen Webserver. Prüfe die Internetverbindung zu cdn.jsdelivr.net und verwende einen aktuellen Browser mit WebGL 2. Lade die Seite anschliessend neu.';
         document.getElementById('errorDetail').textContent = String(error && error.message || error);
-        document.getElementById('status').textContent = 'Unable to start';
+        document.getElementById('status').textContent = 'Start nicht möglich';
         for (const id of ['play','reset','step','front','camera']) document.getElementById(id).disabled = true;
       }
     };
     if (!HTMLScriptElement.supports || !HTMLScriptElement.supports('importmap')) {
-      window.yoyoBoot.fail('This browser does not support import maps. Please update your browser.');
+      window.yoyoBoot.fail('Dieser Browser unterstützt keine Import-Maps. Bitte aktualisiere ihn.');
     }
     window.yoyoBoot.timer = setTimeout(() => {
       if (!window.yoyoBoot.ready) {
-        document.getElementById('messageText').textContent = 'Still loading… Check whether your connection allows cdn.jsdelivr.net, then reload. You can also open the file through a localhost server.';
+        document.getElementById('messageText').textContent = 'Die Seite lädt noch … Prüfe, ob cdn.jsdelivr.net erreichbar ist, und lade die Seite neu. Du kannst die Datei auch über einen lokalen Webserver öffnen.';
       }
     }, 15000);
   </script>
@@ -261,7 +261,7 @@
       renderer.toneMappingExposure = 1.25;
       host.appendChild(renderer.domElement);
       renderer.domElement.tabIndex = 0;
-      renderer.domElement.setAttribute('aria-label','Interactive 3D yo-yo. Drag to orbit and scroll to zoom. Playback buttons and measurements are below the scene.');
+      renderer.domElement.setAttribute('aria-label','Interaktives 3D-Jo-Jo. Ziehen dreht die Ansicht, Scrollen zoomt. Unter der Szene befinden sich die Bedienelemente und Messwerte.');
       const scene = new THREE.Scene();
       scene.add(new THREE.HemisphereLight(0xffffff,0x8a9b83,2.7));
       const key = new THREE.DirectionalLight(0xfff3dc,4);
@@ -427,13 +427,13 @@
         $('spinValue').textContent = (Math.abs(s.v)/p.r*60/(2*Math.PI)).toFixed(0);
         $('accelValue').textContent = a.toFixed(2);
         $('clock').textContent = 't = '+s.t.toFixed(2)+' s';
-        $('status').textContent = s.settled ? 'Settled at full extension' : s.t===0 ? 'Ready to release' : running ? (s.v>=0?'Unwinding · moving down':'Rewinding · moving up') : 'Paused';
-        $('play').textContent = s.settled ? '↺ Drop again' : running ? 'Ⅱ Pause' : s.t===0 ? '▶ Drop yo-yo' : '▶ Resume';
+        $('status').textContent = s.settled ? 'Ruhe bei vollständig abgewickeltem Faden' : s.t===0 ? 'Bereit zum Loslassen' : running ? (s.v>=0?'Abwickeln · abwärts':'Aufwickeln · aufwärts') : 'Angehalten';
+        $('play').textContent = s.settled ? '↺ Nochmals loslassen' : running ? 'Ⅱ Pause' : s.t===0 ? '▶ Jo-Jo loslassen' : '▶ Weiter';
         const e = energies();
         const terms = [e.potential,e.translation,e.rotation,e.lost];
         ['peBar','keBar','rotBar','lossBar'].forEach((id,i) => { $(id).style.width = (100*terms[i]/e.initial)+'%'; });
-        $('energyTotal').textContent = 'Mechanical energy: '+e.total.toFixed(3)+' J';
-        $('energyBar').setAttribute('aria-label',`Gravitational ${e.potential.toFixed(3)} J; translational ${e.translation.toFixed(3)} J; rotational ${e.rotation.toFixed(3)} J; dissipated ${e.lost.toFixed(3)} J.`);
+        $('energyTotal').textContent = 'Mechanische Energie: '+e.total.toFixed(3)+' J';
+        $('energyBar').setAttribute('aria-label',`Lageenergie ${e.potential.toFixed(3)} J; Translationsenergie ${e.translation.toFixed(3)} J; Rotationsenergie ${e.rotation.toFixed(3)} J; dissipierte Energie ${e.lost.toFixed(3)} J.`);
       }
       function resetTrial() { running=false; accumulator=0; resetPhysics(); updateView(); }
       function togglePlay() {
@@ -478,7 +478,7 @@
       document.addEventListener('visibilitychange',() => { lastTime=performance.now(); accumulator=0; });
       renderer.domElement.addEventListener('webglcontextlost',event => {
         event.preventDefault(); contextLost=true; running=false;
-        window.yoyoBoot.fail('The graphics context was lost. Reload this page to restart the simulation.');
+        window.yoyoBoot.fail('Die Grafikverbindung wurde unterbrochen. Lade die Seite neu, um die Simulation erneut zu starten.');
       });
       function resize() {
         const width=host.clientWidth, height=host.clientHeight;
@@ -509,7 +509,7 @@
     } catch (error) {
       clearTimeout(window.yoyoBoot.timer);
       window.yoyoBoot.fail(error);
-      console.error('Yo-yo lab:',error);
+      console.error('Jo-Jo-Labor:',error);
     }
   </script>
 </body>
