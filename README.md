@@ -9,6 +9,7 @@ Eine wachsende Sammlung interaktiver Simulationen für den Unterricht.
 
 - Jo-Jo-Labor: https://enigmaldc.github.io/simulations/physics/yoyo/
 - Spulenparadoxon: https://enigmaldc.github.io/simulations/physics/spool/
+- KSHBot · LQR-Labor: https://enigmaldc.github.io/simulations/physics/kshbot/
 
 Benötigt werden Internet und ein aktueller Browser mit WebGL 2. Konten und
 Installationen sind nicht nötig. Die Physik wird im Browser berechnet; es gibt
@@ -23,6 +24,7 @@ simulations.json           # Liste aller Simulationen
 physics/
   yoyo/index.html          # Jo-Jo-Labor
   spool/index.html         # Spulenparadoxon
+  kshbot/index.html        # LQR-Regelung eines Balanceroboters
 mathematics/               # Für spätere Mathematik-Experimente anlegen
 ```
 
@@ -98,3 +100,7 @@ diesem Repository gepflegt; die frühere Sammlung bleibt unverändert.
 
 - [GitHub Pages einrichten (Englisch)](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [UMass Amherst: «Walking the Spool» (Englisch)](https://people.umass.edu/plecprep/mech/1k1030.html)
+
+## KSHBot-Labor
+
+Das KSHBot-Labor enthält das bereitgestellte Gehäusemodell, schematische Zusatzbauteile und eine nichtlineare Längsdynamik. Die vier Rückführverstärkungen entsprechen den Parametern KTH, KOM, KX und KV. Massenverteilung und Trägheit sind veränderbare Schätzungen; die Simulation ist nicht am echten Roboter validiert. Three.js und das STL sind vollständig in der HTML-Datei enthalten.

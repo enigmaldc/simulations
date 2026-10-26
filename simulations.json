@@ -30,5 +30,20 @@
       "Spule",
       "Spindel"
     ]
+  },
+  {
+    "id": "kshbot",
+    "title": "KSHBot · LQR-Labor",
+    "subject": "Physik",
+    "topic": "Regelungstechnik",
+    "description": "Bringe einen zweirädrigen Roboter ins Gleichgewicht. Verändere vier Reglerparameter und untersuche Neigung, Fahrweg und die Reaktion auf Störungen.",
+    "path": "physics/kshbot/",
+    "icon": "generic",
+    "tags": [
+      "LQR",
+      "Regelung",
+      "Gleichgewicht",
+      "Robotik"
+    ]
   }
 ]
