@@ -42,8 +42,10 @@
     select { padding: 4px 8px; }
     .stage { display: flex; flex-direction: column; overflow: hidden; }
     .stage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
-    .stage-head span { font-size: 13px; color: var(--muted); }
     #track { display: block; width: 100%; flex: 1 0 340px; height: 340px; background: #edf2e8; }
+    .timeline { padding: 9px 16px 11px; border-top: 1px solid var(--line); }
+    .timeline label { display: flex; justify-content: space-between; gap: 12px; font-weight: 650; }
+    .timeline input { display: block; }
     .results { overflow: hidden; margin-top: 16px; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
     caption { text-align: left; padding: 13px 16px 8px; font-weight: 700; }
@@ -77,7 +79,7 @@
     }
   </style>
   <script defer src="model.js"></script>
-  <script defer src="lab.js"></script>
+  <script defer src="lab.js?v=2"></script>
 </head>
 <body>
   <main>
@@ -113,14 +115,18 @@
         </label>
       </section>
       <section class="stage" aria-label="Seitenansicht der fünf Bahnen">
-        <div class="stage-head"><strong>Rollstrecke · 6 m</strong><span id="clock">0.00 s</span></div>
+        <div class="stage-head"><strong>Rollstrecke · 6 m</strong></div>
         <canvas id="track" role="img" aria-label="Fünf parallele Bahnen in Seitenansicht. Der dunkle Punkt im Sichelzylinder markiert seinen Schwerpunkt. Messwerte stehen in der Tabelle."></canvas>
+        <div class="timeline">
+          <label for="time">Zeit <output id="clock">0.00 s</output></label>
+          <input id="time" type="range" min="0" max="0" step="1" value="0">
+        </div>
       </section>
     </div>
     <div class="results">
       <table>
         <caption>Messwerte</caption>
-        <thead><tr><th scope="col">Rollkörper</th><th scope="col">Bewegung</th><th scope="col" title="Geschwindigkeit des Schwerpunkts entlang der Ebene">v (m/s)</th><th scope="col">Zielzeit (s)</th></tr></thead>
+        <thead><tr><th scope="col">Rollkörper</th><th scope="col">Bewegung</th><th scope="col">Position (m)</th><th scope="col" title="Geschwindigkeit des Schwerpunkts entlang der Ebene">v (m/s)</th><th scope="col">Zielzeit (s)</th></tr></thead>
         <tbody id="readings"></tbody>
       </table>
     </div>
@@ -129,7 +135,7 @@
       <p>Alle Körper starten aus der Ruhe und haben denselben Aussenradius R = 0.30 m. Die Hohlkugel ist eine dünne Kugelschale. Beim Hohlzylinder beträgt der Innenradius 70 % des Aussenradius. Der Sichelzylinder hat eine durchgehende sichelförmige Bohrung und eine runde Lauffläche.</p>
       <p>Für symmetrische Körper gilt beim Rollen ohne Gleiten a = g sin(θ) / (1 + k) mit k = I/(mR²). Die Haftreibung reicht aus, wenn μ<sub>s</sub> ≥ k tan(θ)/(1 + k). Bei geringerer Haftreibung kann der Kontaktpunkt gleiten. Dann wirkt Gleitreibung gegen seine Bewegung relativ zur Ebene. Bei Reibung null gleiten die symmetrischen Körper aus der Ruhe ohne Drehung.</p>
       <p>Die Sichelbohrung verschiebt den Schwerpunkt. Dadurch verändern sich das Drehmoment und die Kraft auf die Bahn während jeder Umdrehung. Der Körper kann an flachen Hängen zurückrollen und bei höherem Tempo abheben. Das Modell behandelt den Kontakt als starr und das Aufsetzen ohne Rückprall. Luftwiderstand und Rollwiderstand sind vernachlässigt.</p>
-      <p>In der Tabelle ist v die Geschwindigkeitskomponente des Schwerpunkts entlang der Ebene. Negative Werte zeigen hangaufwärts. Die Zielzeit wird erfasst, wenn die Mitte der runden Lauffläche die Ziellinie passiert. Regleränderungen setzen den Versuch zurück.</p>
+      <p>Mit dem Zeitregler kannst du den Lauf vor- und zurückspulen. Die Wiedergabe pausiert dabei. Die Position misst den Abstand vom Start entlang der Bahn, ausgehend von der Mitte der runden Lauffläche. Für v ist der Schwerpunkt massgebend. Negative Werte zeigen hangaufwärts. Der Lauf endet, sobald alle im Ziel sind oder 20 Sekunden vergangen sind. Änderungen an den Versuchsbedingungen setzen die Zeit zurück.</p>
       <p><a href="https://openstax.org/books/university-physics-volume-1/pages/11-1-rolling-motion">OpenStax · Rolling Motion</a></p>
     </details>
     <noscript>Für das Experiment muss JavaScript aktiviert sein.</noscript>

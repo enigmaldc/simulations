@@ -8,8 +8,12 @@
   const canvas = byId('track');
   const context = canvas.getContext('2d');
   const play = byId('play');
+  const timeInput = byId('time');
   const clock = byId('clock');
   const speed = byId('speed');
+  const stepsPerSample = 16;
+  const sampleDuration = step * stepsPerSample;
+  const maxDuration = 20;
   const formatter = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const number = value => formatter.format(Math.abs(value) < .005 ? 0 : value);
   const rows = bodies.map(body => {
@@ -22,19 +26,19 @@
     swatch.setAttribute('aria-hidden', 'true');
     name.append(swatch, body.name);
     row.append(name);
-    return [row.insertCell(), row.insertCell(), row.insertCell()];
+    return [row.insertCell(), row.insertCell(), row.insertCell(), row.insertCell()];
   });
 
-  let states, plane, ticks, running, frame, lastFrame, pending;
+  let states, plane, timeline, sampleIndex, running, frame, lastFrame, playbackTime;
 
   function updateReadings() {
-    clock.textContent = number(ticks * step) + ' s';
     const labels = { ready: 'Bereit', roll: 'Rollt', slip: 'Rutscht', air: 'In der Luft' };
     states.forEach((state, i) => {
       const resting = state.mode !== 'ready' && state.mode !== 'air'
         && Math.hypot(state.vx, state.vy, radius * state.spin) < .005;
       const values = [
         state.finish !== null ? 'Im Ziel' : resting ? 'Ruht' : labels[state.mode],
+        number(state.finish === null ? geometry(state).x : length),
         number(state.vx),
         state.finish === null ? '–' : number(state.finish),
       ];
@@ -157,10 +161,50 @@
     });
   }
 
+  function updatePlayButton() {
+    if (running) play.textContent = 'Pause';
+    else if (!sampleIndex) play.textContent = 'Start';
+    else if (sampleIndex === timeline.length - 1) play.textContent = 'Neustart';
+    else play.textContent = 'Weiter';
+  }
+
   function pause() {
     running = false;
     cancelAnimationFrame(frame);
-    play.textContent = ticks ? 'Weiter' : 'Start';
+  }
+
+  function recordRun(phase) {
+    const current = bodies.map(body => makeState(body, phase));
+    const samples = [{ time: 0, states: current.map(state => ({ ...state })) }];
+    const maxTicks = Math.round(maxDuration / step);
+    for (let tick = 1; tick <= maxTicks; tick++) {
+      for (const state of current) {
+        if (state.finish !== null) continue;
+        const previous = geometry(state).x;
+        advance(state, plane);
+        const position = geometry(state).x;
+        if (position >= length) state.finish = (tick - 1 + (length - previous) / (position - previous)) * step;
+      }
+      const finished = current.every(state => state.finish !== null);
+      if (finished || tick % stepsPerSample === 0 || tick === maxTicks) {
+        const time = finished ? Math.max(...current.map(state => state.finish)) : tick * step;
+        samples.push({ time, states: current.map(state => ({ ...state })) });
+      }
+      if (finished) break;
+    }
+    return samples;
+  }
+
+  function showSample(index) {
+    sampleIndex = index;
+    states = timeline[index].states;
+    timeInput.value = index;
+    const currentTime = number(timeline[index].time) + ' s';
+    clock.value = currentTime + ' / ' + number(timeline.at(-1).time) + ' s';
+    timeInput.setAttribute('aria-valuetext', currentTime);
+    updatePlayButton();
+    updateReadings();
+    draw();
   }
 
   function reset() {
@@ -172,50 +216,44 @@
     byId('kinetic-value').value = number(plane.muKinetic);
     byId('phase-value').value = phaseInput.value + '°';
     const phase = (+phaseInput.value + 90) * Math.PI / 180;
-    states = bodies.map(body => makeState(body, phase));
-    ticks = 0;
-    pending = 0;
-    play.textContent = 'Start';
-    play.disabled = false;
-    updateReadings();
-    draw();
+    timeline = recordRun(phase);
+    timeInput.max = timeline.length - 1;
+    showSample(0);
   }
 
   function tick(now) {
     if (!running) return;
-    if (lastFrame !== undefined) pending += Math.min((now - lastFrame) / 1000, .05) * +speed.value;
+    if (lastFrame !== undefined) playbackTime += Math.min((now - lastFrame) / 1000, .05) * +speed.value;
     lastFrame = now;
-    while (pending >= step) {
-      for (const state of states) {
-        if (state.finish !== null) continue;
-        const previous = geometry(state).x;
-        advance(state, plane);
-        const current = geometry(state).x;
-        if (current >= length) state.finish = (ticks + (length - previous) / (current - previous)) * step;
-      }
-      ticks++;
-      pending -= step;
-      if (states.every(state => state.finish !== null)) {
-        pause();
-        play.textContent = 'Fertig';
-        play.disabled = true;
-        break;
-      }
+    if (playbackTime >= timeline.at(-1).time) {
+      pause();
+      showSample(timeline.length - 1);
+      return;
     }
-    updateReadings();
-    draw();
-    if (running) frame = requestAnimationFrame(tick);
+    const index = Math.floor(playbackTime / sampleDuration);
+    if (index !== sampleIndex) showSample(index);
+    frame = requestAnimationFrame(tick);
   }
 
   for (const input of inputs) input.addEventListener('input', reset);
-  byId('reset').addEventListener('click', reset);
+  timeInput.addEventListener('input', () => {
+    pause();
+    showSample(+timeInput.value);
+  });
+  byId('reset').addEventListener('click', () => {
+    pause();
+    showSample(0);
+  });
   play.addEventListener('click', () => {
     if (running) {
       pause();
+      updatePlayButton();
     } else {
+      if (sampleIndex === timeline.length - 1) showSample(0);
       running = true;
+      playbackTime = timeline[sampleIndex].time;
       lastFrame = undefined;
-      play.textContent = 'Pause';
+      updatePlayButton();
       frame = requestAnimationFrame(tick);
     }
   });
