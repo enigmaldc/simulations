@@ -120,6 +120,7 @@
     const spreadY = 4 * laneGap * cos;
     const scale = Math.min((width - 76 - spreadX) / (length * cos),
       (height - spreadY - 78) / Math.max(length * sin, .01),
+      (height - spreadY - 34) / (length * sin + 4 * radius),
       (laneGap - 6) / (2 * radius));
     const spanX = length * scale * cos;
     const spanY = length * scale * sin;
