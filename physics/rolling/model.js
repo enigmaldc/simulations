@@ -4,6 +4,9 @@
   const radius = 0.30;
   const length = 6;
   const step = 1 / 960;
+  const stepsPerSample = 16;
+  const sampleDuration = step * stepsPerSample;
+  const maxDuration = 20;
   const gravity = 9.81;
   const innerRadius = 0.70;
   // Subtract the part of the left disk outside the right disk, in units of R.
@@ -112,5 +115,29 @@
     if (state.mode !== 'air' || state.y < contactY) state.y = contactY;
   }
 
-  globalThis.RollingModel = { radius, length, step, innerRadius, crescent, bodies, makeState, geometry, slope, advance };
+  function recordRun(plane, phase) {
+    const current = bodies.map(body => makeState(body, phase));
+    const samples = [{ time: 0, states: current.map(state => ({ ...state })) }];
+    const maxTicks = Math.round(maxDuration / step);
+    for (let tick = 1; tick <= maxTicks; tick++) {
+      for (const state of current) {
+        if (state.finish !== null) continue;
+        const previous = geometry(state).x;
+        advance(state, plane);
+        const position = geometry(state).x;
+        if (position >= length) state.finish = (tick - 1 + (length - previous) / (position - previous)) * step;
+      }
+      const finished = current.every(state => state.finish !== null);
+      if (finished || tick % stepsPerSample === 0 || tick === maxTicks) {
+        const time = finished ? Math.max(...current.map(state => state.finish)) : tick * step;
+        samples.push({ time, states: current.map(state => ({ ...state })) });
+      }
+      if (finished) break;
+    }
+    return samples;
+  }
+
+  globalThis.RollingModel = {
+    radius, length, step, sampleDuration, innerRadius, crescent, bodies, makeState, geometry, slope, advance, recordRun,
+  };
 })();

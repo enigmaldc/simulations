@@ -1,7 +1,7 @@
 (() => {
   'use strict';
 
-  const { radius, length, step, innerRadius, crescent, bodies, makeState, geometry, slope, advance } = RollingModel;
+  const { radius, length, sampleDuration, innerRadius, crescent, bodies, makeState, geometry, slope, recordRun } = RollingModel;
   const byId = id => document.getElementById(id);
   const inputs = ['angle', 'static', 'kinetic', 'phase'].map(byId);
   const [angleInput, staticInput, kineticInput, phaseInput] = inputs;
@@ -11,9 +11,6 @@
   const timeInput = byId('time');
   const clock = byId('clock');
   const speed = byId('speed');
-  const stepsPerSample = 16;
-  const sampleDuration = step * stepsPerSample;
-  const maxDuration = 20;
   const formatter = new Intl.NumberFormat('de-CH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const number = value => formatter.format(Math.abs(value) < .005 ? 0 : value);
   const rows = bodies.map(body => {
@@ -30,6 +27,27 @@
   });
 
   let states, plane, timeline, sampleIndex, running, frame, lastFrame, playbackTime;
+  let worker, pendingRun, runTimer, previewFrame;
+  let runId = 0;
+
+  try {
+    if (typeof Worker !== 'undefined' && window.location.protocol !== 'file:') {
+      worker = new Worker('run-worker.js?v=1');
+    }
+  } catch {
+    // A browser may block workers when opening a local copy.
+  }
+  if (worker) {
+    worker.addEventListener('message', ({ data: { id, samples } }) => useRun(id, samples));
+    worker.addEventListener('error', () => {
+      worker.terminate();
+      worker = null;
+      if (pendingRun) {
+        clearTimeout(runTimer);
+        runTimer = setTimeout(buildRun, 0);
+      }
+    });
+  }
 
   function updateReadings() {
     const labels = { ready: 'Bereit', roll: 'Rollt', slip: 'Rutscht', air: 'In der Luft' };
@@ -173,26 +191,21 @@
     cancelAnimationFrame(frame);
   }
 
-  function recordRun(phase) {
-    const current = bodies.map(body => makeState(body, phase));
-    const samples = [{ time: 0, states: current.map(state => ({ ...state })) }];
-    const maxTicks = Math.round(maxDuration / step);
-    for (let tick = 1; tick <= maxTicks; tick++) {
-      for (const state of current) {
-        if (state.finish !== null) continue;
-        const previous = geometry(state).x;
-        advance(state, plane);
-        const position = geometry(state).x;
-        if (position >= length) state.finish = (tick - 1 + (length - previous) / (position - previous)) * step;
-      }
-      const finished = current.every(state => state.finish !== null);
-      if (finished || tick % stepsPerSample === 0 || tick === maxTicks) {
-        const time = finished ? Math.max(...current.map(state => state.finish)) : tick * step;
-        samples.push({ time, states: current.map(state => ({ ...state })) });
-      }
-      if (finished) break;
-    }
-    return samples;
+  function useRun(id, samples) {
+    if (id !== pendingRun?.id) return;
+    pendingRun = null;
+    timeline = samples;
+    timeInput.max = timeline.length - 1;
+    timeInput.disabled = false;
+    play.disabled = false;
+    showSample(0);
+  }
+
+  function buildRun() {
+    if (!pendingRun) return;
+    const { id, plane, phase } = pendingRun;
+    if (worker) worker.postMessage(pendingRun);
+    else useRun(id, recordRun(plane, phase));
   }
 
   function showSample(index) {
@@ -207,7 +220,7 @@
     draw();
   }
 
-  function reset() {
+  function reset(delay = 90) {
     pause();
     kineticInput.max = staticInput.value;
     plane = slope(+angleInput.value, +staticInput.value, +kineticInput.value);
@@ -216,9 +229,24 @@
     byId('kinetic-value').value = number(plane.muKinetic);
     byId('phase-value').value = phaseInput.value + '°';
     const phase = (+phaseInput.value + 90) * Math.PI / 180;
-    timeline = recordRun(phase);
-    timeInput.max = timeline.length - 1;
-    showSample(0);
+    timeline = null;
+    sampleIndex = 0;
+    states = bodies.map(body => makeState(body, phase));
+    timeInput.value = 0;
+    timeInput.disabled = true;
+    play.disabled = true;
+    clock.value = 'Wird berechnet …';
+    updatePlayButton();
+    updateReadings();
+    if (previewFrame === undefined) {
+      previewFrame = requestAnimationFrame(() => {
+        previewFrame = undefined;
+        draw();
+      });
+    }
+    pendingRun = { id: ++runId, plane, phase };
+    clearTimeout(runTimer);
+    runTimer = setTimeout(buildRun, delay);
   }
 
   function tick(now) {
@@ -235,14 +263,14 @@
     frame = requestAnimationFrame(tick);
   }
 
-  for (const input of inputs) input.addEventListener('input', reset);
+  for (const input of inputs) input.addEventListener('input', () => reset());
   timeInput.addEventListener('input', () => {
     pause();
     showSample(+timeInput.value);
   });
   byId('reset').addEventListener('click', () => {
     pause();
-    showSample(0);
+    if (timeline) showSample(0);
   });
   play.addEventListener('click', () => {
     if (running) {
@@ -257,6 +285,6 @@
       frame = requestAnimationFrame(tick);
     }
   });
-  reset();
+  reset(0);
   new ResizeObserver(draw).observe(canvas);
 })();
