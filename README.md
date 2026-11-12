@@ -9,9 +9,10 @@ Eine wachsende Sammlung interaktiver Simulationen für den Unterricht.
 
 - Jo-Jo-Labor: https://enigmaldc.github.io/simulations/physics/yoyo/
 - Spulenparadoxon: https://enigmaldc.github.io/simulations/physics/spool/
+- Rollen auf der schiefen Ebene: https://enigmaldc.github.io/simulations/physics/rolling/
 - KSHBot · PID- und LQR-Labor: https://enigmaldc.github.io/simulations/physics/kshbot/
 
-Benötigt werden Internet und ein aktueller Browser mit WebGL 2. Konten und
+Benötigt wird ein aktueller Browser. Einzelne 3D-Experimente verwenden WebGL 2. Konten und
 Installationen sind nicht nötig. Die Physik wird im Browser berechnet; es gibt
 keine kostenpflichtigen KI-Aufrufe und keine API-Schlüssel.
 
@@ -24,6 +25,7 @@ simulations.json           # Liste aller Simulationen
 physics/
   yoyo/index.html          # Jo-Jo-Labor
   spool/index.html         # Spulenparadoxon
+  rolling/index.html       # Rollen auf der schiefen Ebene
   kshbot/index.html        # LQR-Regelung eines Balanceroboters
 mathematics/               # Für spätere Mathematik-Experimente anlegen
 ```

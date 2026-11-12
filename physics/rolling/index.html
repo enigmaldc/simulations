@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="de-CH">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f4ed">
+  <meta name="description" content="Vergleiche fünf Rollkörper auf einer schiefen Ebene und untersuche, wann sie rollen, rutschen oder abheben.">
+  <link rel="icon" href="data:,">
+  <title>Rollen auf der schiefen Ebene · Mathematik &amp; Physik</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f4ed; --ink: #233e3c; --muted: #536a64;
+      --green: #237f70; --line: #dce2d8; --card: #fffef9;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.6 'Segoe UI', Arial, sans-serif; }
+    main { max-width: 1230px; margin: auto; padding: 0 32px 42px; }
+    a { color: var(--green); }
+    header { border-bottom: 1px solid var(--line); padding: 19px 0; }
+    header a { font-weight: 650; text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+    h1 { font-size: clamp(31px, 5vw, 51px); line-height: 1.08; letter-spacing: -.05em; margin: 31px 0 10px; }
+    .intro { color: var(--muted); margin: 0 0 25px; }
+    .lab { display: grid; grid-template-columns: 275px minmax(0, 1fr); gap: 16px; }
+    .controls, .stage, .results, details { border: 1px solid var(--line); border-radius: 15px; background: var(--card); }
+    .controls { padding: 17px 18px; }
+    .control { margin-bottom: 12px; }
+    .control label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; font-weight: 650; }
+    output, td { font-variant-numeric: tabular-nums; }
+    output { color: var(--green); white-space: nowrap; }
+    input[type=range] { width: 100%; margin: 6px 0 0; accent-color: var(--green); cursor: pointer; }
+    small { display: block; color: var(--muted); line-height: 1.4; }
+    .buttons { display: flex; gap: 8px; margin-top: 14px; }
+    button, select { font: inherit; border: 1px solid #c6d4c8; border-radius: 8px; background: var(--card); color: var(--ink); }
+    button { padding: 7px 12px; cursor: pointer; font-weight: 650; }
+    button:disabled { opacity: .55; cursor: default; }
+    #play { min-width: 100px; background: #236e61; color: white; border-color: #236e61; }
+    button:not(:disabled):hover { filter: brightness(.95); }
+    :focus-visible { outline: 3px solid #b77d23; outline-offset: 3px; }
+    .speed { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 13px; font-size: 13px; }
+    select { padding: 4px 8px; }
+    .stage { display: flex; flex-direction: column; overflow: hidden; }
+    .stage-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--line); }
+    .stage-head span { font-size: 13px; color: var(--muted); }
+    #track { display: block; width: 100%; flex: 1 0 340px; height: 340px; background: #edf2e8; }
+    .results { overflow: hidden; margin-top: 16px; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    caption { text-align: left; padding: 13px 16px 8px; font-weight: 700; }
+    th, td { padding: 8px 16px; border-top: 1px solid var(--line); }
+    thead { color: var(--muted); font-size: 12px; }
+    tbody th { font-weight: 600; }
+    td { white-space: nowrap; }
+    .swatch { display: inline-block; width: .75em; height: .75em; border-radius: 50%; margin-right: 8px; }
+    details { margin-top: 16px; padding: 11px 16px; }
+    summary { font-weight: 650; cursor: pointer; }
+    details p { max-width: 82ch; }
+    noscript { display: block; color: #8a4b1d; }
+    @media (max-width: 770px) {
+      main { padding-inline: 18px; }
+      .lab { grid-template-columns: 1fr; }
+      .controls { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 16px; }
+      .buttons, .speed { margin-top: 3px; }
+      #track { flex-basis: 360px; height: 360px; }
+    }
+    @media (max-width: 440px) {
+      main { padding-inline: 12px; }
+      .controls { padding: 13px 12px; column-gap: 11px; }
+      .control label { font-size: 12px; }
+      .buttons { gap: 5px; }
+      button { padding-inline: 7px; font-size: 13px; }
+      #play { min-width: 64px; }
+      .speed { font-size: 11px; }
+      th, td { padding: 7px 5px; font-size: 11px; }
+      th:first-child { padding-left: 8px; }
+      .swatch { margin-right: 4px; }
+    }
+  </style>
+  <script defer src="model.js"></script>
+  <script defer src="lab.js"></script>
+</head>
+<body>
+  <main>
+    <header><a href="../../">← Zur Simulationssammlung</a></header>
+    <h1>Rollen auf der schiefen Ebene</h1>
+    <p class="intro">Lass fünf Körper gleichzeitig los. Welcher erreicht zuerst das Ziel? Ab wann rutscht ein Körper?</p>
+    <div class="lab">
+      <section class="controls" aria-label="Versuchsbedingungen">
+        <div class="control">
+          <label for="angle">Neigung <output id="angle-value" for="angle">20°</output></label>
+          <input id="angle" type="range" min="0" max="55" step="1" value="20">
+        </div>
+        <div class="control">
+          <label for="static">Haftreibung <output id="static-value" for="static">0.35</output></label>
+          <input id="static" type="range" min="0" max="1.2" step="0.01" value="0.35">
+        </div>
+        <div class="control">
+          <label for="kinetic">Gleitreibung <output id="kinetic-value" for="kinetic">0.25</output></label>
+          <input id="kinetic" type="range" min="0" max="0.35" step="0.01" value="0.25" aria-describedby="kinetic-note">
+          <small id="kinetic-note">Höchstens so gross wie die Haftreibung.</small>
+        </div>
+        <div class="control">
+          <label for="phase">Sichel-Startwinkel <output id="phase-value" for="phase">0°</output></label>
+          <input id="phase" type="range" min="0" max="359" step="1" value="0" aria-describedby="phase-note">
+          <small id="phase-note">Bei 0° liegt der Schwerpunkt der Sichelwalze am tiefsten.</small>
+        </div>
+        <div class="buttons">
+          <button id="play" type="button">Start</button>
+          <button id="reset" type="button">Reset</button>
+        </div>
+        <label class="speed" for="speed">Wiedergabe
+          <select id="speed"><option value="0.25">0.25×</option><option value="0.5">0.5×</option><option value="1" selected>1×</option></select>
+        </label>
+      </section>
+      <section class="stage" aria-label="Seitenansicht der fünf Bahnen">
+        <div class="stage-head"><strong>Rollstrecke · 6 m</strong><span id="clock">0.00 s</span></div>
+        <canvas id="track" role="img" aria-label="Fünf parallele Bahnen in Seitenansicht. Der dunkle Punkt im Sichelzylinder markiert seinen Schwerpunkt. Messwerte stehen in der Tabelle."></canvas>
+      </section>
+    </div>
+    <div class="results">
+      <table>
+        <caption>Messwerte</caption>
+        <thead><tr><th scope="col">Rollkörper</th><th scope="col">Bewegung</th><th scope="col" title="Geschwindigkeit des Schwerpunkts entlang der Ebene">v (m/s)</th><th scope="col">Zielzeit (s)</th></tr></thead>
+        <tbody id="readings"></tbody>
+      </table>
+    </div>
+    <details>
+      <summary>Was bestimmt die Bewegung?</summary>
+      <p>Alle Körper starten aus der Ruhe und haben denselben Aussenradius R = 0.30 m. Die Hohlkugel ist eine dünne Kugelschale. Beim Hohlzylinder beträgt der Innenradius 70 % des Aussenradius. Der Sichelzylinder hat eine durchgehende sichelförmige Bohrung und eine runde Lauffläche.</p>
+      <p>Für symmetrische Körper gilt beim Rollen ohne Gleiten a = g sin(θ) / (1 + k) mit k = I/(mR²). Die Haftreibung reicht aus, wenn μ<sub>s</sub> ≥ k tan(θ)/(1 + k). Bei geringerer Haftreibung kann der Kontaktpunkt gleiten. Dann wirkt Gleitreibung gegen seine Bewegung relativ zur Ebene. Bei Reibung null gleiten die symmetrischen Körper aus der Ruhe ohne Drehung.</p>
+      <p>Die Sichelbohrung verschiebt den Schwerpunkt. Dadurch verändern sich das Drehmoment und die Kraft auf die Bahn während jeder Umdrehung. Der Körper kann an flachen Hängen zurückrollen und bei höherem Tempo abheben. Das Modell behandelt den Kontakt als starr und das Aufsetzen ohne Rückprall. Luftwiderstand und Rollwiderstand sind vernachlässigt.</p>
+      <p>In der Tabelle ist v die Geschwindigkeitskomponente des Schwerpunkts entlang der Ebene. Negative Werte zeigen hangaufwärts. Die Zielzeit wird erfasst, wenn die Mitte der runden Lauffläche die Ziellinie passiert. Regleränderungen setzen den Versuch zurück.</p>
+      <p><a href="https://openstax.org/books/university-physics-volume-1/pages/11-1-rolling-motion">OpenStax · Rolling Motion</a></p>
+    </details>
+    <noscript>Für das Experiment muss JavaScript aktiviert sein.</noscript>
+  </main>
+</body>
+</html>

@@ -45,5 +45,25 @@
       "Regelung",
       "Robotik"
     ]
+  },
+  {
+    "id": "rolling",
+    "title": "Rollen auf der schiefen Ebene",
+    "subject": "Physik",
+    "topic": "Mechanik",
+    "description": "Lass fünf Körper gleichzeitig los. Verändere die Neigung und Reibung und beobachte, wann Kugeln und Zylinder rollen, rutschen oder abheben.",
+    "path": "physics/rolling/",
+    "icon": "rolling",
+    "tags": [
+      "Rollen",
+      "Haftreibung",
+      "Trägheitsmoment",
+      "Schwerpunkt",
+      "Schiefe Ebene",
+      "Gleitreibung",
+      "Kugel",
+      "Zylinder",
+      "Sichelbohrung"
+    ]
   }
 ]
