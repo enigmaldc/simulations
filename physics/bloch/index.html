@@ -22,6 +22,7 @@
 </section>
 <section class="panel sphere-panel" aria-labelledby="sphere-title"><div class="section-head"><h2 id="sphere-title">Bloch-Kugel</h2><button id="camera-reset" class="quiet">Ansicht zurücksetzen</button></div>
 <canvas id="sphere" aria-label="Bloch-Kugel mit Anfangszustand, aktuellem Zustand und Trajektorie. Ansicht durch Ziehen drehbar." tabindex="0"></canvas>
+<div class="sphere-transport"><button id="sphere-play" class="primary">Von Anfang abspielen</button><button id="sphere-pause" disabled>Pause</button></div>
 <div class="sphere-key"><span><i class="dot current"></i>Qubit</span><span><i class="dot initial"></i>Start</span><span><i class="line-key"></i>Trajektorie</span></div><p class="hint centered">Ziehen zum Drehen · Pfeiltasten bei fokussierter Kugel</p>
 <div class="readouts"><div><span>P(0)</span><strong id="p0">100.0 %</strong><div class="meter"><i id="p0-bar"></i></div></div><div><span>P(1)</span><strong id="p1">0.0 %</strong><div class="meter blue"><i id="p1-bar"></i></div></div><div><span>Bloch-Vektor (x, y, z)</span><strong id="vector" class="vector">0.000, 0.000, 1.000</strong><span id="angles" class="hint"></span></div></div>
 </section>

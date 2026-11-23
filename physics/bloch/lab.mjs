@@ -19,7 +19,13 @@ function title(p) {
   const axis=p.axis==='z'?'Z':p.phase===0?'X':p.phase===90?'Y':`XY ${p.phase}°`;
   return `${axis}(${a})`;
 }
-function stop(){playing=false;$('play').textContent='Abspielen';}
+function stop(){playing=false;$('play').textContent='Abspielen';$('sphere-pause').disabled=true;}
+function startPlayback(fromStart=false){
+  if(!run.duration)return;
+  if(fromStart||time>=run.duration)time=0;
+  playing=true;$('play').textContent='Pause';$('sphere-pause').disabled=false;
+  lastFrame=performance.now();render();
+}
 function rebuild() {
   stop(); time=0;
   try {run=compile(config);$('error').hidden=true;}
@@ -33,7 +39,7 @@ function rebuild() {
   $('scrub').max=run.duration||1;$('scrub').disabled=!run.duration;
   $('pulse-count').textContent=`${config.pulses.length} / 32`;
   for(const id of ['add-pi','add-half','add-wait'])$(id).disabled=config.pulses.length>=32;
-  for(const id of ['play','step','export'])$(id).disabled=!run.duration;
+  for(const id of ['play','sphere-play','step','export'])$(id).disabled=!run.duration;
   $('theta-value').textContent=`${config.theta}°`;$('phi-value').textContent=`${config.phi}°`;
   for(const b of $('states').children)b.setAttribute('aria-pressed',String(+b.dataset.theta===config.theta&&(+b.dataset.phi===config.phi||config.theta===0||config.theta===180)));
   $('timeline').replaceChildren(...run.segments.map(s=>{const b=document.createElement('button');b.textContent=title(s.pulse);b.dataset.axis=s.pulse.axis;b.style.flex=`${s.end-s.start} 1 0`;b.title=`${s.index+1}. ${title(s.pulse)} · ${s.start}–${s.end} ns`;b.setAttribute('aria-label',b.title);b.onclick=()=>{stop();time=s.start;render();};return b;}));
@@ -148,7 +154,9 @@ $('load-example').onclick=()=>{
 };
 for(const [id,p]of [['add-pi',pulse()],['add-half',pulse(90)],['add-wait',pulse(0,0,100,'wait')]])$(id).onclick=()=>{if(config.pulses.length>=32)return;config.pulses.push({...p});rebuild();renderPulses();$('pulse-list').lastElementChild.scrollIntoView({block:'nearest'});};
 $('clear').onclick=()=>{config.pulses=[];rebuild();renderPulses();};
-$('play').onclick=()=>{if(playing){stop();return;}if(time>=run.duration)time=0;playing=true;$('play').textContent='Pause';lastFrame=performance.now();};
+$('play').onclick=()=>{if(playing){stop();return;}startPlayback();};
+$('sphere-play').onclick=()=>startPlayback(true);
+$('sphere-pause').onclick=()=>stop();
 $('reset').onclick=()=>{stop();time=0;render();};
 $('step').onclick=()=>{stop();time=run.segments.find(s=>s.end>time+1e-7)?.end??run.duration;render();};
 $('scrub').oninput=()=>{stop();time=+$('scrub').value;render();};
