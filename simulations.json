@@ -1,5 +1,15 @@
 [
   {
+    "id": "bloch",
+    "title": "Bloch-Kugel · Qubit-Pulslabor",
+    "subject": "Physik",
+    "topic": "Quantenmechanik",
+    "description": "Initialisiere ein Qubit, kombiniere π- und π/2-Pulse und verfolge die Zeitentwicklung auf der Bloch-Kugel. Entdecke Superposition, Ramsey-Interferenz und Spin-Echo.",
+    "path": "physics/bloch/",
+    "icon": "bloch",
+    "tags": ["Qubit", "Bloch-Kugel", "Pulse", "Quantenmechanik", "Superposition", "Ramsey", "Spin-Echo"]
+  },
+  {
     "id": "yoyo",
     "title": "Jo-Jo-Labor",
     "subject": "Physik",
