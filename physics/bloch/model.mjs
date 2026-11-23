@@ -56,3 +56,17 @@ export function atTime(run, time) {
   const step=run.steps[lo];
   return {...step, r:rotate(step.r,step.omega,Math.min(step.dt,t-step.t))};
 }
+// Sample both elapsed time and accumulated rotation to avoid aliasing long,
+// rapidly precessing sequences. Keep pulse boundaries in plots and exports.
+export function sampleTrace(run) {
+  const trace=[];
+  let rotation=0,lastTime=-Infinity,lastIndex=-1;
+  for(const step of run.steps){
+    if(step.index!==lastIndex||step.t-lastTime>=run.duration/1800||rotation>=0.2){
+      trace.push({t:step.t,r:step.r});lastTime=step.t;lastIndex=step.index;rotation=0;
+    }
+    rotation+=Math.hypot(...step.omega)*step.dt;
+  }
+  trace.push({t:run.duration,r:run.final});
+  return trace;
+}

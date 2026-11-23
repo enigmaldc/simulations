@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {compile,atTime,initialState} from './model.mjs';
+import {compile,atTime,initialState,sampleTrace} from './model.mjs';
 const p=(angle,phase=0,axis='xy',duration=40,shape='square')=>({angle,phase,axis,duration,shape});
 const run=(pulses,extra={})=>compile({theta:0,phi:0,detuning:0,pulses,...extra});
 const near=(a,b,tol=1e-9)=>a.forEach((v,i)=>assert.ok(Math.abs(v-b[i])<tol,`${a} != ${b}`));
@@ -36,4 +36,12 @@ test('empty chains and invalid parameters',()=>{
   near(atTime(run([]),100).r,[0,0,1]);
   assert.throws(()=>run([p(90,0,'xy',0)]));assert.throws(()=>run([p(NaN)]));
   assert.throws(()=>run(Array.from({length:33},()=>p(90))));
+});
+test('trajectory sampling resolves all 6400 zero crossings in the longest detuned wait sequence',()=>{
+  const a=run(Array.from({length:32},()=>p(0,0,'wait',10000)),{theta:90,detuning:10});
+  const samples=sampleTrace(a);
+  const crossings=samples.slice(1).reduce((sum,s,i)=>sum+(s.r[0]*samples[i].r[0]<0?1:0),0);
+  assert.equal(crossings,6400);
+  for(const segment of a.segments)assert.ok(samples.some(s=>s.t===segment.start));
+  near(samples.at(-1).r,a.final);
 });

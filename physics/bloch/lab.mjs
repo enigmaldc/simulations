@@ -1,4 +1,4 @@
-import {compile, atTime, TAU} from './model.mjs';
+import {compile, atTime, sampleTrace, TAU} from './model.mjs';
 import {buildMath,updateMath} from './maths-view.mjs';
 const $ = id => document.getElementById(id);
 const colors = ['#237f70','#467fbc','#ad6b31'];
@@ -31,12 +31,8 @@ function rebuild() {
   stop(); time=0;
   try {run=compile(config);$('error').hidden=true;}
   catch(e){$('error').textContent=e.message;$('error').hidden=false;return;}
-  const n=Math.min(1800,Math.max(500,config.pulses.length*100));
   chartDirty=true;
-  // Include every pulse boundary, including those of very short pulses.
-  const times=new Set(Array.from({length:n+1},(_,i)=>run.duration*i/n));
-  run.segments.forEach(s=>{times.add(s.start);times.add(s.end);for(let i=1;i<48;i++)times.add(s.start+(s.end-s.start)*i/48);});
-  trace=[...times].sort((a,b)=>a-b).map(t=>({t,r:atTime(run,t).r}));
+  trace=sampleTrace(run);
   $('scrub').max=run.duration||1;$('scrub').disabled=!run.duration;
   $('pulse-count').textContent=`${config.pulses.length} / 32`;
   for(const id of ['add-pi','add-half','add-wait'])$(id).disabled=config.pulses.length>=32;
