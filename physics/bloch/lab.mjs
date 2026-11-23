@@ -1,10 +1,11 @@
 import {compile, atTime, TAU} from './model.mjs';
+import {buildMath,updateMath} from './maths-view.mjs';
 const $ = id => document.getElementById(id);
 const colors = ['#237f70','#467fbc','#ad6b31'];
 let config = {theta:0,phi:0,detuning:0,pulses:[]}, run, time=0, playing=false, lastFrame=0;
 let yaw=-0.65, pitch=0.30, drag=null, trace=[];
 const chartCache=document.createElement('canvas');
-let chartDirty=true;
+let chartDirty=true, math;
 const pulse = (angle=180,phase=0,duration=40,axis='xy') => ({angle,phase,duration,axis,shape:'square'});
 const examples = {
   inversion: {detuning:0,pulses:[pulse()]},
@@ -43,6 +44,7 @@ function rebuild() {
   $('theta-value').textContent=`${config.theta}°`;$('phi-value').textContent=`${config.phi}°`;
   for(const b of $('states').children)b.setAttribute('aria-pressed',String(+b.dataset.theta===config.theta&&(+b.dataset.phi===config.phi||config.theta===0||config.theta===180)));
   $('timeline').replaceChildren(...run.segments.map(s=>{const b=document.createElement('button');b.textContent=title(s.pulse);b.dataset.axis=s.pulse.axis;b.style.flex=`${s.end-s.start} 1 0`;b.title=`${s.index+1}. ${title(s.pulse)} · ${s.start}–${s.end} ns`;b.setAttribute('aria-label',b.title);b.onclick=()=>{stop();time=s.start;render();};return b;}));
+  math=buildMath(run,config,title,t=>{stop();time=t;render();$('sphere').scrollIntoView({block:'center'});});
   render();
 }
 function renderPulses() {
@@ -144,6 +146,7 @@ function render(){
   $('time').textContent=`${time.toFixed(1)} / ${run.duration} ns`;$('scrub').value=time;
   $('active').textContent=!run.duration?'Keine Pulse':time>=run.duration?'Folge abgeschlossen':`${state.index+1}. ${title(config.pulses[state.index])}`;
   highlight();drawSphere(r);drawChart();
+  if(math)updateMath(run,math,time);
 }
 for(const id of ['theta','phi'])$(id).oninput=()=>{config[id]=+$(id).value;rebuild();};
 $('detuning').onchange=()=>{if(!$('detuning').checkValidity()){$('detuning').reportValidity();$('detuning').value=config.detuning;return;}config.detuning=+$('detuning').value;rebuild();};

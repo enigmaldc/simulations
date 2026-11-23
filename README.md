@@ -127,8 +127,15 @@ Einheiten werden auf der Seite erläutert.
 Physiktests (Node.js, ohne Installation):
 
 ```powershell
-node --test physics/bloch/model.test.mjs
+node --test physics/bloch/model.test.mjs physics/bloch/quantum.test.mjs
 ```
+
+Das Bloch-Pulslabor zeigt zudem einen mathematischen Rechenweg: komplexe
+Anfangsamplituden, Pulsmatrizen, beide Zeilen jeder Matrixmultiplikation,
+Zwischenzustände und Messwahrscheinlichkeiten. Der aktuelle Zustandsvektor
+folgt der Animation und dem Zeitschieber. Globale Phase bleibt in den
+Amplituden erhalten. Bei geformten, verstimmten Pulsen wird die Matrix aus
+denselben Zeitschritten wie die Kugelbewegung aufgebaut.
 
 ## KSHBot-Labor
 
