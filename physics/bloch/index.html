@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de-CH">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f5f4ed"><meta name="description" content="Initialisiere ein Qubit, baue Pulsfolgen und beobachte ihre Wirkung auf der Bloch-Kugel.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><title>Bloch-Kugel · Qubit-Pulslabor</title>
+</head>
+<body><div class="wrap">
+<header><a href="../../">Alle Simulationen</a><span>Physik / Quantenmechanik</span></header>
+<main>
+<div class="heading"><div><p class="eyebrow">Das Qubit-Pulslabor</p><h1>Eine Kugel. Alle Möglichkeiten.</h1><p class="intro">Bereite ein Qubit vor. Baue eine Pulsfolge. Entdecke, wie aus einer Rotation ein neuer Quantenzustand wird.</p></div><span class="badge">Ein Qubit · rotierendes Bezugssystem</span></div>
+<div class="workspace">
+<section class="panel setup" aria-labelledby="init-title"><div class="section-head"><h2 id="init-title">Anfangszustand</h2><span class="muted">Vor dem ersten Puls</span></div>
+<p class="formula">|ψ₀⟩ = cos(θ/2)|0⟩ + e<sup>iφ</sup> sin(θ/2)|1⟩</p>
+<div class="state-presets" id="states" role="group" aria-label="Anfangszustand wählen"><button data-theta="0" data-phi="0">|0⟩</button><button data-theta="180" data-phi="0">|1⟩</button><button data-theta="90" data-phi="0">|+⟩</button><button data-theta="90" data-phi="180">|−⟩</button><button data-theta="90" data-phi="90">|+i⟩</button><button data-theta="90" data-phi="270">|−i⟩</button></div>
+<label for="theta">Polarwinkel θ <output id="theta-value">0°</output></label><input id="theta" type="range" min="0" max="180" value="0" step="1">
+<label for="phi">Relativphase φ <output id="phi-value">0°</output></label><input id="phi" type="range" min="0" max="360" value="0" step="1">
+<div class="divider"></div><label for="detuning">Verstimmung Δ/2π <span class="unit">MHz</span></label><input id="detuning" required type="number" min="-10" max="10" step="0.1" value="0">
+<p class="hint">0 MHz: resonante Pulse. Eine Verstimmung lässt das Qubit auch in Wartezeiten um die z-Achse präzedieren.</p>
+<label for="example">Experiment laden</label><select id="example"><option value="inversion">Inversion · X(π)</option><option value="superposition">Superposition · Y(π/2)</option><option value="ramsey">Ramsey · zwei π/2-Pulse</option><option value="echo">Spin-Echo · π/2 – π – π/2</option><option value="identity">Rückkehr · vier π/2-Pulse</option></select>
+<button id="load-example" class="wide">Experiment übernehmen</button>
+</section>
+<section class="panel sphere-panel" aria-labelledby="sphere-title"><div class="section-head"><h2 id="sphere-title">Bloch-Kugel</h2><button id="camera-reset" class="quiet">Ansicht zurücksetzen</button></div>
+<canvas id="sphere" aria-label="Bloch-Kugel mit Anfangszustand, aktuellem Zustand und Trajektorie. Ansicht durch Ziehen drehbar." tabindex="0"></canvas>
+<div class="sphere-key"><span><i class="dot current"></i>Qubit</span><span><i class="dot initial"></i>Start</span><span><i class="line-key"></i>Trajektorie</span></div><p class="hint centered">Ziehen zum Drehen · Pfeiltasten bei fokussierter Kugel</p>
+<div class="readouts"><div><span>P(0)</span><strong id="p0">100.0 %</strong><div class="meter"><i id="p0-bar"></i></div></div><div><span>P(1)</span><strong id="p1">0.0 %</strong><div class="meter blue"><i id="p1-bar"></i></div></div><div><span>Bloch-Vektor (x, y, z)</span><strong id="vector" class="vector">0.000, 0.000, 1.000</strong><span id="angles" class="hint"></span></div></div>
+</section>
+<section class="panel sequence" aria-labelledby="sequence-title"><div class="section-head"><div><h2 id="sequence-title">Pulsfolge</h2><p class="hint">Von oben nach unten angewendet</p></div><span id="pulse-count" class="muted"></span></div>
+<div id="pulse-list"></div>
+<div class="add-pulses" role="group" aria-label="Puls hinzufügen"><button id="add-pi">+ π-Puls</button><button id="add-half">+ π/2-Puls</button><button id="add-wait">+ Wartezeit</button></div><p class="hint">Jeder Puls ist editierbar. Phase 0° = x, 90° = y; negative Winkel drehen rückwärts.</p><p id="error" role="alert" hidden></p>
+<div class="sequence-footer"><button id="clear" class="quiet">Folge leeren</button><button id="export" class="quiet">CSV exportieren</button></div>
+</section>
+<section class="panel evolution" aria-labelledby="evolution-title"><div class="section-head"><h2 id="evolution-title">Zeitentwicklung</h2><span id="active" role="status">Bereit</span></div>
+<div class="transport"><button id="play" class="primary">Abspielen</button><button id="reset">Zum Start</button><button id="step">Nächstes Pulsende</button><label class="speed" for="speed">Tempo <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label><label class="loop"><input id="loop" type="checkbox"> Wiederholen</label><output id="time">0 / 40 ns</output></div>
+<label for="scrub" class="sr-only">Zeitpunkt in der Pulsfolge (ns)</label><input id="scrub" type="range" min="0" max="40" step="any" value="0">
+<div id="timeline" class="timeline" aria-label="Zeitliche Pulsübersicht"></div>
+<canvas id="chart" aria-label="Zeitverlauf von x, y, z und Pulsamplitude; zum Springen an einen Zeitpunkt klicken"></canvas><div class="chart-key"><span class="x">⟨σx⟩</span><span class="y">⟨σy⟩</span><span class="z">⟨σz⟩</span><span class="muted">Ω/2π (MHz, rechte Skala)</span></div>
+</section>
+</div>
+<section class="notes"><div><h2>Was macht ein Puls?</h2><p>Ein π-Puls dreht den Bloch-Vektor um 180°, ein π/2-Puls um 90°. Die Phase bestimmt die Achse in der xy-Ebene. Ein z-Puls dreht die Relativphase. Die Reihenfolge zählt: Rotationen um verschiedene Achsen sind nicht vertauschbar.</p></div><div><h2>Fläche statt Höhe</h2><p>Der eingestellte Winkel ist die Pulsfläche ∫Ω(t)dt bei Resonanz. Rechteck, Gauss und sin² haben dieselbe Fläche. Kürzere Pulse benötigen eine höhere Amplitude. Bei Verstimmung kann sich der tatsächlich erreichte Zustand unterscheiden.</p></div><details><summary>Modell, Einheiten und Grenzen</summary><p>Reines, isoliertes Qubit ohne Relaxation oder Dekohärenz. H/ℏ = ½[Ω(t)cos(ϕ)σx + Ω(t)sin(ϕ)σy + Δσz]; beim z-Puls wird Ω(t) zu Δ addiert. Während Wartezeiten ist Ω = 0. Winkel folgen der Rechtsschraubenregel: X(π/2) bringt |0⟩ nach |−i⟩.</p><p>Die Entwicklung wird mit normerhaltenden Rotationen in kleinen Zeitschritten berechnet (mindestens 256 pro Puls). Gauss-Pulse sind bei ±3.125σ abgeschnitten und auf die gewünschte Fläche normiert. Globale Phase wird auf der Bloch-Kugel nicht dargestellt. Die Animation ist verlangsamt; die Zeitleiste zeigt die physikalische Zeit in ns. 1× spielt 10 ns pro Sekunde ab.</p><p>Grundlagen: <a href="https://quantum.cloud.ibm.com/docs/en/guides/composer" target="_blank" rel="noreferrer">IBM Quantum: Rotationsgatter und Bloch-Kugel</a>.</p></details></section>
+</main><footer>Vermuten. Experimentieren. Erklären. <a href="../../">Zur Simulationssammlung</a></footer>
+</div><script type="module" src="lab.mjs"></script></body></html>

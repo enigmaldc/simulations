@@ -11,6 +11,7 @@ Eine wachsende Sammlung interaktiver Simulationen für den Unterricht.
 - Spulenparadoxon: https://enigmaldc.github.io/simulations/physics/spool/
 - Rollen auf der schiefen Ebene: https://enigmaldc.github.io/simulations/physics/rolling/
 - KSHBot · PID- und LQR-Labor: https://enigmaldc.github.io/simulations/physics/kshbot/
+- Bloch-Kugel · Qubit-Pulslabor: https://enigmaldc.github.io/simulations/physics/bloch/
 
 Benötigt wird ein aktueller Browser. Einzelne 3D-Experimente verwenden WebGL 2. Konten und
 Installationen sind nicht nötig. Die Physik wird im Browser berechnet; es gibt
@@ -27,6 +28,7 @@ physics/
   spool/index.html         # Spulenparadoxon
   rolling/index.html       # Rollen auf der schiefen Ebene
   kshbot/index.html        # LQR-Regelung eines Balanceroboters
+  bloch/index.html         # Qubit-Zustände, Pulsfolgen und Bloch-Kugel
 mathematics/               # Für spätere Mathematik-Experimente anlegen
 ```
 
@@ -102,6 +104,31 @@ diesem Repository gepflegt; die frühere Sammlung bleibt unverändert.
 
 - [GitHub Pages einrichten (Englisch)](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
 - [UMass Amherst: «Walking the Spool» (Englisch)](https://people.umass.edu/plecprep/mech/1k1030.html)
+
+## Bloch-Kugel · Qubit-Pulslabor
+
+Das Pulslabor läuft ohne externe Bibliotheken. Die drehbare Bloch-Kugel zeigt
+Anfangszustand, aktuellen Zustand und Trajektorie eines reinen Qubits im
+rotierenden Bezugssystem. Sechs Zustandsvorgaben und die Winkel θ und φ
+initialisieren das Qubit. Bis zu 32 Pulse lassen sich bearbeiten, umordnen
+und entfernen: XY-Rotationen mit frei wählbarer Phase, Z-Rotationen und
+Wartezeiten, jeweils mit Dauer in ns. π- und π/2-Pulse können direkt ergänzt
+werden. Rechteck-, Gauss- und sin²-Pulse werden auf die gewählte Pulsfläche
+normiert. Verstimmung in MHz wirkt auch während Wartezeiten.
+
+Abspielen, Pause, Zeitschieber und Sprung zum nächsten Pulsende zeigen die
+kontinuierliche Entwicklung; Diagramm und CSV enthalten Bloch-Komponenten,
+Messwahrscheinlichkeiten und Pulsamplitude. Vorgaben: Inversion,
+Superposition, Ramsey, Spin-Echo und vier π/2-Pulse. Änderungen setzen die
+Zeit auf null. Die Simulation enthält keine Dekohärenz oder Relaxation;
+globale Phase ist auf der Bloch-Kugel nicht sichtbar. Das Modell und seine
+Einheiten werden auf der Seite erläutert.
+
+Physiktests (Node.js, ohne Installation):
+
+```powershell
+node --test physics/bloch/model.test.mjs
+```
 
 ## KSHBot-Labor
 
